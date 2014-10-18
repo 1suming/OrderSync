@@ -1,0 +1,8 @@
+OrderSyncClient
+	客户端程序，负责发送源端数据发送到服务端；
+
+OrderSyncServer 
+	服务端程序，负责接收源端数据；
+	
+OrderDbSync
+	负责将数据同步到数据库中；
