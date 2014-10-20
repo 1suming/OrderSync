@@ -216,11 +216,13 @@
 		<Folder Name="inc">
 			<F N="inc/fetcher.h"/>
 			<F N="inc/order_sync_client.h"/>
+			<F N="inc/packet.h"/>
 		</Folder>
 		<Folder Name="src">
 			<F N="src/fetcher.cc"/>
 			<F N="src/main.cc"/>
 			<F N="src/order_sync_client.cc"/>
+			<F N="src/packet.cc"/>
 		</Folder>
 	</Files>
 </Project>
