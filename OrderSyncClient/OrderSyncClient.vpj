@@ -215,14 +215,20 @@
 	<Files AutoFolders="DirectoryView">
 		<Folder Name="inc">
 			<F N="inc/fetcher.h"/>
+			<F N="inc/log.h"/>
 			<F N="inc/order_sync_client.h"/>
 			<F N="inc/packet.h"/>
+			<F N="inc/RedisHelper.h"/>
+			<F N="inc/TcpClient.h"/>
 		</Folder>
 		<Folder Name="src">
 			<F N="src/fetcher.cc"/>
+			<F N="src/log.cc"/>
 			<F N="src/main.cc"/>
 			<F N="src/order_sync_client.cc"/>
 			<F N="src/packet.cc"/>
+			<F N="src/RedisHelper.cc"/>
+			<F N="src/TcpClient.cc"/>
 		</Folder>
 	</Files>
 </Project>

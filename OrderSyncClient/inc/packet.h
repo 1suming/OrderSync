@@ -3,6 +3,8 @@
 
 #include <string>
 #include <stdint.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 
 using std::string;
 
@@ -23,6 +25,8 @@ struct header_s {
 };
 #pragma pack(pop)
 
+#define ALLOC(p, sz) p = malloc(sz)
+
 
 class packet_t {
 public:
@@ -38,7 +42,8 @@ public:
 public:
 	int begin(unsigned short cmd) 
 	{
-		char *c;
+		char 			*c;
+		unsigned short 	md;
 
 		if (_data == NULL) {
 			_data = malloc(sz);
@@ -49,20 +54,34 @@ public:
 		}
 
 		c = _data + 6;
+		md = htons(cmd);
 
-		memcpy(c, &cmd, sizeof cmd);
+		memcpy(c, &md, sizeof md);
+
+		idx = sizeof(header_t); // 设置idx为header的长度
 
 		return 0;
 	}
 
 	int end() 
 	{
-		encode();
+		header_t *h;
 
+		h = (header_t*)_data;
+		
+		h->len = htons(len - 2);
+		h->mark[1] = 'B';
+		h->mark[2] = 'Y';
+		h->main = 1;
+		h->sub = 1;
+/*
+		*(unsigned short*)(_data) = htons(len - 2);
 		*(_data + 2) = 'B';
 		*(_data + 3) = 'Y';
-		*(_data) = len -2;
-
+		*(_data + 4) = 1;
+		*(_data + 5) = 1;
+*/
+		encode();
 		return 0;
 	}
 
@@ -91,6 +110,11 @@ public:
 	string read_string();
 
 	header_t* get_header();
+	char* get_data() { return _data; }
+	unsigned short get_len() { return len; }
+	int parse_packet(const char* data, unsigned short size);
+
+	void clean() { memset(_data, 0, sz);  idx = len = 0; }
 private:
 	int encode();
 	int decode();

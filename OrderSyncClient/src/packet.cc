@@ -233,8 +233,8 @@ packet_t::write_double(double d)
 int
 packet_t::write_string(const char* s)
 {
-	int sz;
-	char *p;
+	unsigned int 	sz;
+	char 			*p;
 
 	p = _data + len;
 	sz = strlen(s);
@@ -249,8 +249,8 @@ packet_t::write_string(const char* s)
 int 
 packet_t::write_string(const string& s)
 {
-	int sz;
-	char *p;
+	unsigned int 	sz;
+	char 			*p;
 
 	p = _data + len;
 	sz = s.size();
@@ -327,4 +327,93 @@ packet_t::read_uint()
 
 	return ntohl(*(unsigned int*)p);
 }
+
+int64_t
+packet_t::read_int64()
+{
+	char *p;
+	
+	p = _data + idx;
+	idx += sizeof(int64_t);
+
+	return _ntohll(*(int64_t*)p);
+}
+
+uint64_t
+packet_t::read_uint64()
+{
+	char *p;
+
+	p = _data + idx;
+	idx += sizeof(uint64_t);
+
+	return _ntohll(*(uint64_t*)p);
+}
+
+double
+packet_t::read_double()
+{
+	char *p;
+
+	p = read_string();
+	
+	return atof(p);
+}
+
+char*
+packet_t::read_string()
+{
+	unsigned int 	sz;
+	char			*p;
+
+	sz = read_uint();
+	p = _data + idx;
+	idx += sz;
+
+	return p;
+}
+
+string
+packet_t::read_string()
+{
+	unsigned int 	sz;
+	char			*p;
+
+	sz = read_uint();
+	p = _data + idx;
+	idx += sz;
+
+	return string(p, sz - 1);
+}
+
+header_t*
+packet_t::get_header()
+{
+	return (header_t*)_data;
+}
+
+int
+packet_t::parse_packet(const char* data, unsigned short size)
+{
+	if (_data == NULL) {
+		_data = malloc(size);
+
+		if (_data == NULL) {
+			return -1;
+		}
+
+		sz = size;
+		len = size;
+		idx = 0;
+	}
+
+	memcpy(_data, data, size);
+
+	if (decode()) {
+		return -2;
+	}
+
+	return 0;
+}
+
 
