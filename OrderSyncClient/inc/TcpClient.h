@@ -5,8 +5,6 @@
 
 using std::string;
 
-typedef class CTcpClient tcp_client_t;
-
 class CTcpClient {
 public:
     CTcpClient(string host, unsigned short port);

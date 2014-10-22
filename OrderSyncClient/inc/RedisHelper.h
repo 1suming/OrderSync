@@ -1,14 +1,10 @@
 #ifndef __REDIS_HELPER_H_
 #define __REDIS_HELPER_H_
 
-//#include "Log.h"
-
-
 #include <string>
-#include <hiredis/hiredis.h>
+#include "hiredis/hiredis.h"
 
 using namespace std;
-typedef class CRedisHelper redis_helper_t;
 
 class CRedisHelper {
 public:

@@ -1,5 +1,4 @@
-﻿#include "packet.h"
-
+#include "packet.h"
 #include <netinet/in.h>
 #include <arpa/inet.h> 
 #include <string.h>
@@ -292,7 +291,7 @@ packet_t::read_int16()
 	p = (int16_t*)(_data + idx);
 	idx += sizeof(int16_t);
 
-	return ntons(*p);
+	return ntohs(*p);
 }
 
 uint16_t
@@ -300,10 +299,10 @@ packet_t::read_uint16()
 {
 	uint16_t *p;
 
-	p = (int16_t*)(_data + idx);
+	p = (uint16_t*)(_data + idx);
 	idx += sizeof(uint16_t);
 
-	return ntons(*p);
+	return ntohs(*p);
 }
 
 int
@@ -353,13 +352,14 @@ packet_t::read_uint64()
 double
 packet_t::read_double()
 {
-	char *p;
+	const char *p;
 
-	p = read_string();
+	p = read_string().c_str();
 	
 	return atof(p);
 }
 
+/*
 char*
 packet_t::read_string()
 {
@@ -372,6 +372,7 @@ packet_t::read_string()
 
 	return p;
 }
+*/
 
 string
 packet_t::read_string()
@@ -396,7 +397,7 @@ int
 packet_t::parse_packet(const char* data, unsigned short size)
 {
 	if (_data == NULL) {
-		_data = malloc(size);
+		_data = (char*)malloc(size);
 
 		if (_data == NULL) {
 			return -1;

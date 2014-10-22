@@ -1,4 +1,5 @@
 #include "TcpClient.h"
+#include "log.h"
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -31,21 +32,22 @@ CTcpClient::~CTcpClient()
 int
 CTcpClient::Send(const char* buffer, int size)
 {
-	int iLen = 0;//发送的总字节数
-    int cLen = 0;//当次发送的字节数
+	int iLen; //发送的总字节数
+    int cLen;//当次发送的字节数
 
+	iLen = cLen = 0;
 
-	if(IsConnected) {
+	if (IsConnected) {
 		while(iLen < size) {
 			cLen = send(socketfd_, buffer + iLen, size - iLen, 0); 
 
-			if (-1 == cLen) {
+			if (cLen == -1) {
 				if (errno == EAGAIN || errno == EINTR) {
 					continue;
 				} else {
 					return -1;
 				}
-			} else if (clen == 0) { // 连接关闭
+			} else if (cLen == 0) { // 连接关闭
 				Close(); 
 				return 0;
 			} 
@@ -102,9 +104,9 @@ CTcpClient::Socket()
     socketfd_ = socket(AF_INET, SOCK_STREAM, 0);
 
     if (socketfd_ == -1){
-        return 0;
-	} else {
         return -1;
+	} else {
+        return 0;
 	}
 }
 
@@ -121,11 +123,11 @@ CTcpClient::Connect()
     remote.sin_family = AF_INET;
     remote.sin_port = htons(port_);
 
-	 if(this->socketfd_ > 0) {
-        result = connect(socketfd_, (struct sockaddr*)&remote, sizeof(struct sockaddr));
+	if(this->socketfd_ > 0) {
+		result = connect(socketfd_, (struct sockaddr*)&remote, sizeof(struct sockaddr));
 
-        IsConnected = result == 0 ? true : false;
-	 }
+		IsConnected = result == 0 ? true : false;
+	}
 
     return result;
 }
@@ -133,7 +135,14 @@ CTcpClient::Connect()
 int
 CTcpClient::Reconnect()
 {
-	socket();
+	int ret;
+
+	ret = Socket();
+
+	if (ret == -1) {
+		log_error("Reconnect invoke socket() failed.");
+		return -1;
+	}
 
 	return Connect();
 }

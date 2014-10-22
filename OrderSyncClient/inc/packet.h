@@ -1,4 +1,4 @@
-﻿#ifndef __PACKET_H_
+#ifndef __PACKET_H_
 #define __PACKET_H_
 
 #include <string>
@@ -46,7 +46,7 @@ public:
 		unsigned short 	md;
 
 		if (_data == NULL) {
-			_data = malloc(sz);
+			_data = (char*)malloc(sz);
 
 			if (_data == NULL) {
 				return -1;
@@ -106,7 +106,7 @@ public:
 	int64_t read_int64();
 	uint64_t read_uint64();
 	double read_double();
-	char* read_string();
+	//char* read_string();
 	string read_string();
 
 	header_t* get_header();
