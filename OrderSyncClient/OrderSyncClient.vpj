@@ -217,6 +217,7 @@
 			<F N="inc/fetcher.h"/>
 			<F N="inc/IniFile.h"/>
 			<F N="inc/log.h"/>
+			<F N="inc/MysqlHelper.h"/>
 			<F N="inc/order_sync_client.h"/>
 			<F N="inc/packet.h"/>
 			<F N="inc/RedisHelper.h"/>
@@ -227,6 +228,7 @@
 			<F N="src/IniFile.cc"/>
 			<F N="src/log.cc"/>
 			<F N="src/main.cc"/>
+			<F N="src/MysqlHelper.cc"/>
 			<F N="src/order_sync_client.cc"/>
 			<F N="src/packet.cc"/>
 			<F N="src/RedisHelper.cc"/>
