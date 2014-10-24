@@ -20,7 +20,7 @@ public:
 	}
 	~order_sync_client_t();
 public:
-	int run()
+	int run();
 public:
 	long get_ord_date(uint64_t id); /* 返回订单创建时间 */
 private:

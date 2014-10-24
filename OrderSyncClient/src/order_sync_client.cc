@@ -6,6 +6,8 @@
 #include "MysqlHelper.h"
 #include "json/json.h"
 
+using namespace Json;
+
 order_sync_client_t::
 ~order_sync_client_t()
 {
@@ -18,16 +20,30 @@ order_sync_client_t::
 int
 order_sync_client_t::run()
 {
-	packet_t 	out;
-	string 		json;
-	int			r;
-	long		t;
+	packet_t 		out;
+	string 			json;
+	int				r;
+	Reader			reader;
+	Value 			value;
+	int				type;
+	unsigned long 	id;
 
 	while (1) {
 		if (_f) {
 			json = _f->fetch("");
 
 			if (!json.empty()) {
+				if (!reader.parse(json, value)) {
+					log_error("json: %s parse failed.", json.c_str());
+					continue;
+				}
+
+				type = value["type"].asInt();
+				id = value["id"].asUInt64();
+				if (type == 1) { /* update order 需要获取创建时间，同步端需要依赖这个字段 */
+					value["time"] = (UInt64)get_ord_date(id); 
+				} 
+
 				out.begin(0x0001);
 				out.write_string(json);
 				out.end();
@@ -68,7 +84,7 @@ order_sync_client_t::get_ord_date(uint64_t id)
 
 	if (r) {
 		if (r->HasNext()) {
-			t = r->GetLong();
+			t = r->GetLong(0);
 		} else {
 			t = 0;
 		}

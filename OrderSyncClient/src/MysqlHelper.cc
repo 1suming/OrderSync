@@ -176,7 +176,6 @@ CMysqlResult::GetLong(int col)
 	return atol(row_[col]);
 }
 
-
 float
 CMysqlResult::GetFloat(int col)
 {

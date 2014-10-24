@@ -24,11 +24,11 @@ ENDFOREACH()
 
 set(SRC ${CXX_LIST} ${HEADER_LIST})
 
-include_directories(. inc /home/AustinChen/lib/include /usr/local/mysql/include)
-link_directories(/usr/local/mysql/lib /home/AustinChen/lib)
+include_directories(. inc /home/AustinChen/tools/jsoncpp-0.6.0/include /home/AustinChen/lib/include /usr/local/mysql/include)
+link_directories(/home/AustinChen/tools/jsoncpp-0.6.0/libs/linux-gcc-4.1.2 /usr/local/mysql/lib /home/AustinChen/lib)
 
 add_executable(order_sync_client ${SRC})
 
-target_link_libraries(order_sync_client mysqlclient z rt libhiredis.a)
+target_link_libraries(order_sync_client mysqlclient z rt libhiredis.a libjson.a)
 	
 

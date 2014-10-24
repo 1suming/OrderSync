@@ -48,7 +48,7 @@ public:
 	char* GetChar(int col);
 	int	GetInt(int col);
 	float GetFloat(int col);
-	long GetLong(long col);
+	long GetLong(int col);
 
 private:
 	MYSQL_RES* res_;
