@@ -4,7 +4,6 @@
 #include <mysql.h>
 #include <string>
 
-
 class CMysqlResult;
 
 class CMysqlHelper {

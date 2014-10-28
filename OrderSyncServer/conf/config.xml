@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="GB2312" ?>
+<SYSTEM LogDir="../log"             
+        LogLevel="7"                MaxFdCount="102400"                 
+        WebTimeout="3600"            HelperTimeout="3600"
+        MaxListenCount="1024"       BindAddr="0.0.0.0"             
+    	RedisServer="192.168.100.167"  RedisPort="4503" 
+	UdpServer="192.168.100.142" UdpPort="7522"
+	KEY="!@#$%^&*12345678"
+	AccessLog="0">
+</SYSTEM>

@@ -5,8 +5,13 @@
 #include "TcpClient.h"
 #include "MysqlHelper.h"
 #include "json/json.h"
+#include "conf.h"
+#define __STDC_FORMAT_MACROS
+#include <inttypes.h>
 
 using namespace Json;
+
+extern conf_t g_conf;
 
 order_sync_client_t::
 ~order_sync_client_t()
@@ -30,7 +35,7 @@ order_sync_client_t::run()
 
 	while (1) {
 		if (_f) {
-			json = _f->fetch("");
+			json = _f->fetch(g_conf.redis_key);
 
 			if (!json.empty()) {
 				if (!reader.parse(json, value)) {
@@ -38,19 +43,23 @@ order_sync_client_t::run()
 					continue;
 				}
 
+				log_debug("JSON: %s", json.c_str());
+
 				type = value["type"].asInt();
 				id = value["id"].asUInt64();
 				if (type == 1) { /* update order 需要获取创建时间，同步端需要依赖这个字段 */
 					value["time"] = (UInt64)get_ord_date(id); 
 				} 
 
-				out.begin(0x0001);
+				out.begin(0x0002);
 				out.write_string(json);
 				out.end();
 
 				if (_c) {
 				send:
 					r = _c->Send(out.get_data(), out.get_len());
+
+					log_debug("SEND: %d", r);
 
 					if (r == 0) {
 						if (_c->Reconnect() > 0) {
@@ -74,11 +83,19 @@ order_sync_client_t::run()
 long
 order_sync_client_t::get_ord_date(uint64_t id)
 {
-	char 			*sql;
+	string 			sql;
 	CMysqlResult 	*r;
 	long			t;
+	size_t			pos;
+	char			temp[64];
 
-	sql = "select pstarttime from paycenter_order where pid = %llu";
+	sql = "select pstarttime from paycenter_order where pid = :id";
+	pos = sql.find(":id");
+	if (pos != string::npos) {
+		snprintf(temp, 64, "%"PRIu64, id);
+		sql.replace(pos, strlen(":id"), temp);
+		log_debug("sql: %s", sql.c_str());
+	}
 
 	r = _m->ExecuteQuery(sql);
 

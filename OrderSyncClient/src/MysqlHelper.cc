@@ -3,9 +3,10 @@
 #include <stdlib.h>
 #include <mysql.h>
 
-
-CMysqlHelper::CMysqlHelper(const std::string& host, unsigned int port, const std::string& user, 
-	const std::string& passwd)
+CMysqlHelper::CMysqlHelper(const std::string& host, 
+						   unsigned int port, 
+	                       const std::string& user, 
+	                       const std::string& passwd)
 	:host_(host),
 	port_(port),
 	user_(user),
@@ -14,7 +15,10 @@ CMysqlHelper::CMysqlHelper(const std::string& host, unsigned int port, const std
 	mysql_init(&mysql_);
 }
 
-CMysqlHelper::CMysqlHelper(const char * host, unsigned int port, const char * user, const char * passwd)
+CMysqlHelper::CMysqlHelper(const char * host, 
+						   unsigned int port, 
+	                       const char * user, 
+	                       const char * passwd)
 	:host_(host),
 	port_(port),
 	user_(user),

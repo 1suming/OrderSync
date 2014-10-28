@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="GB2312" ?>
+<SYSTEM>
+<Node>
+	<ServerList><!--ÿ????????һ??server??-->
+		<Server svid="1" level="1" ip="192.168.100.154" port="48001"/> 
+		<Server svid="2" level="2" ip="192.168.100.154" port="48002"/>
+	</ServerList>
+	<CmdList>
+		<Cmd value="257"/><!--0x0101-->
+		<Cmd value="785"/><!--0x0311-->
+		<Cmd value="275"/><!--0x0113-->
+		<Cmd value="1540"/><!--0x0604-->
+		<Cmd value="276"/><!--0x0114-->
+		<Cmd value="269"/><!--0x010D-->
+		<Cmd value="277"/><!--0x0115-->
+		<Cmd value="279"/><!--0x0117-->
+		<Cmd value="288"/><!--0x0120-->
+		<Cmd value="270"/><!--0x010E-->
+		<Cmd value="289"/><!--0x0121-->
+		<Cmd value="290"/><!--0x0122-->
+		<Cmd value="292"/><!--0x0124-->
+		<Cmd value="285"/><!--0x011D-->
+		<Cmd value="293"/><!--0x0125-->
+		<Cmd value="286"/><!--0x011e-->
+        <Cmd value="308"/><!---->
+        <Cmd value="309"/><!---->
+        <Cmd value="310"/><!---->
+        <Cmd value="311"/><!---->
+        <Cmd value="28752"/><!---->
+        <Cmd value="28756"/><!---->
+        <Cmd value="28757"/><!---->
+	</CmdList>
+</Node>
+<IPMap>
+        <IP eth0="192.168.100.154" eth1="192.168.100.154"/>
+</IPMap>
+<WhiteCmdList>
+	<UidList uids="1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20"/>
+</WhiteCmdList>
+
+</SYSTEM>

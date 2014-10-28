@@ -5,25 +5,12 @@
 #include "RedisHelper.h"
 #include "TcpClient.h"
 #include "MysqlHelper.h"
+#include "conf.h"
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/types.h>
 #include <unistd.h>
-
-typedef struct conf_s conf_t;
-struct conf_s {
-	char 			server_ip[16];
-	unsigned short 	server_port;
-	char 			redis_ip[16];
-	unsigned short 	redis_port;
-	char 			redis_key[64];
-	char 			mysql_ip[16];
-	unsigned short 	mysql_port;
-	char 			mysql_username[64];
-	char 			mysql_password[64];
-	char 			mysql_db[64];
-};
 
 bool 	is_daemon = true;
 conf_t 	g_conf; 
@@ -60,7 +47,7 @@ _init()
 	read_profile_string("mysql", "ip", g_conf.mysql_ip, sizeof g_conf.mysql_ip, "", f);
 	g_conf.mysql_port = read_profile_int("mysql", "port", 0, f);
 	read_profile_string("mysql", "db", g_conf.mysql_db, sizeof g_conf.mysql_db, "", f);
-	read_profile_string("mysql", "user", g_conf.mysql_username, sizeof g_conf.mysql_username, "", f);
+	read_profile_string("mysql", "username", g_conf.mysql_username, sizeof g_conf.mysql_username, "", f);
 	read_profile_string("mysql", "password", g_conf.mysql_password, sizeof g_conf.mysql_password, "", f);
 
 	_dump_conf();
@@ -101,17 +88,27 @@ main(int argc, char** argv)
 	if (c == NULL) {
 		log_error("new TcpClient failed.");
 		return -1;
+	} 
+	if (c->Connect()) {
+		log_error("connect server failed.");
+		return -1;
 	}
+
 
 	m = new mysql_helper_t(g_conf.mysql_ip, 
 						   g_conf.mysql_port, 
 		                   g_conf.mysql_username, 
 		                   g_conf.mysql_password);
-	m->UseDB(g_conf.mysql_db);
 	if (m == NULL) {
 		log_error("new mysql failed.");
 		return -1;
 	}
+	if (m->Connect()) {
+		log_error("connect mysql failed.");
+		return -1;
+	}
+	m->UseDB(g_conf.mysql_db);
+
 
 	instance = new order_sync_client_t(f, c, m);
 	if (instance) {

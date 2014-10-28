@@ -1,0 +1,8 @@
+
+INSERT:
+{"id": 1970676120, "sql":"INSERT INTO `paycenter_order` (`pid`, `mid`, `sitemid`, `buyer`, `sid`, `appid`, `pmode`, `pamount`, `pcoins`, `pchips`, `pcard`, `pnum`, `payconfid`, `pcoinsnow`, `pdealno`, `pbankno`, `desc`, `pstarttime`, `pendtime`, `pstatus`, `pamount_rate`, `pamount_unit`, `pamount_usd`, `ext_1`, `ext_2`, `ext_3`, `ext_4`, `ext_5`, `ext_6`, `ext_7`, `ext_8`, `ext_9`, `ext_10`) VALUES
+(1970676120, 0, '100002112615471', '100002112615471', 4, 5, 27, 3, 0, 27000, 0, 1, 25296, 0, '0', '0', '0', 1408464000, 0, 0, 1, 'USD', 3, 0, 0, 0, '', '', '', '', '', '', '0101');", "time":140000000, "type":0 }
+
+UPDATE:{"id": 1970676120, "sql":"update `paycenter_order` set pstatus=2,ext_7='201' where pid=1970676120", "time":140000050, "type":1 }
+
+"{\"id\": 1970676120, \"sql\":\"update `paycenter_order` set pstatus=2,ext_7='201' where pid=1970676120\", \"time\":140000050, \"type\":1 }"

@@ -214,6 +214,7 @@
 	</CustomFolders>
 	<Files AutoFolders="DirectoryView">
 		<Folder Name="inc">
+			<F N="inc/conf.h"/>
 			<F N="inc/fetcher.h"/>
 			<F N="inc/IniFile.h"/>
 			<F N="inc/log.h"/>

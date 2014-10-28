@@ -1,0 +1,59 @@
+include ./Make.conf
+
+COMPILE_LIB_HOME=../../bin
+RUN_LIB_HOME=../../lib
+      
+INC 	    = -I. -I$(CORE_HOME) 
+LINK	    = -lpthread -L$(RUN_LIB_HOME) -Wl,-rpath=$(RUN_LIB_HOME) -lcore -lz  -z defs  /home/AustinChen/lib/libhiredis.a 
+OPT         = -pipe -fno-ident -fPIC -O2
+
+CFLAGS += $(OPT) -g -Wall  -D_GNU_SOURCE -funroll-loops -MMD -D_REENTRANT
+
+ifeq ($(MEMCHECK),1)
+CFLAGS += -DMEMCHECK
+endif
+
+CXXFLAGS := $(CFLAGS)
+
+SRCS	= proxy_module.cpp \
+          global.cpp \
+          client_unit.cpp \
+          helper_unit.cpp \
+          decode_unit.cpp \
+          incoming.cpp \
+          listener.cpp \
+		  socket.cpp\
+		  cache.cpp\
+		  mempool.cpp\
+		  CHelper_pool.cpp\
+          EncryptDecrypt.cpp\
+          game_unit.cpp\
+	      ../include/Json/json_writer.cpp\
+	      ../include/Json/json_reader.cpp\
+		  ../include/Json/json_value.cpp\
+	      RedisServer.cpp\
+	      clib_log.cpp	\
+	      watchdog.cpp	\
+	      RealTimer.cpp
+	  
+BIN_NAME = OrderSyncServer
+BIN	= $(COMPILE_LIB_HOME)/$(BIN_NAME)
+
+all: $(BIN)
+$(BIN): $(SRCS:.cpp=.o) 
+	$(CXX) -o $@ $^ $(CXXFLAGS) $(INC) $(LINK)
+
+%.o: %.c Makefile
+	$(CC) $(CFLAGS) $(INC) -c -pg -o $@ $<
+	@-mv -f $*.d .dep.$@
+%.o: %.cc Makefile
+	$(CXX) $(CXXFLAGS) $(INC) -c -pg -o $@ $<
+	@-mv -f $*.d .dep.$@
+%.o: %.cpp Makefile
+	$(CXX) $(CXXFLAGS) $(INC) -c -pg -o $@ $<
+	@-mv -f $*.d .dep.$@
+clean:
+	rm -f *.o .po *.so *.d .dep.* $(BIN) $(COMPILE_LIB_HOME)/HallServer
+clrobj:
+	rm -f *.o .po *.so *.d .dep.*
+-include /dev/null $(wildcard .dep.*)

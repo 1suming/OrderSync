@@ -13,7 +13,7 @@ __BEGIN_DECLS
 #define DEFAULT_FILE_SIZE   50 * 1024 * 1024
 
 #if CLIENTAPI
-#define __log_level__ 4
+#define __log_level__ 6
 #else
 extern int __log_level__;
 #endif

@@ -1,6 +1,8 @@
 #ifndef __PACKET_H_
 #define __PACKET_H_
 
+#include "log.h"
+
 #include <string>
 #include <stdint.h>
 #include <netinet/in.h>
@@ -13,7 +15,6 @@ using std::string;
 #endif
 
 #pragma pack(push, 1)
-
 typedef struct header_s header_t;
 struct header_s {
 	unsigned short 	len;		/* 包体长度，不包含字段本身 */
@@ -58,7 +59,7 @@ public:
 
 		memcpy(c, &md, sizeof md);
 
-		idx = sizeof(header_t); // 设置idx为header的长度
+		len = sizeof(header_t); 
 
 		return 0;
 	}
@@ -69,9 +70,10 @@ public:
 
 		h = (header_t*)_data;
 		
+		log_debug("len: %d", len);
 		h->len = htons(len - 2);
-		h->mark[1] = 'B';
-		h->mark[2] = 'Y';
+		h->mark[0] = 'B';
+		h->mark[1] = 'Y';
 		h->main = 1;
 		h->sub = 1;
 /*
@@ -114,7 +116,7 @@ public:
 	unsigned short get_len() { return len; }
 	int parse_packet(const char* data, unsigned short size);
 
-	void clean() { memset(_data, 0, sz);  idx = len = 0; }
+	void clean() { if (_data) memset(_data, 0, sz);  idx = len = 0; }
 private:
 	int encode();
 	int decode();

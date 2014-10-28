@@ -76,7 +76,7 @@ packet_t::encode()
 	unsigned char	code;
 
 	p = _data + sizeof(header_t);
-	esz = idx - sizeof(header_t);
+	esz = len - sizeof(header_t);
 	code = 0;
 
 	for (unsigned short i = 0; i < esz; i++) {
@@ -97,7 +97,7 @@ packet_t::decode()
 	unsigned char code;
 
 	p = _data + sizeof(header_t);
-	dsz = idx - sizeof(header_t);
+	dsz = len - sizeof(header_t);
 	code = *(_data + 8);
 
 	for (unsigned short i = 0; i < dsz; i++) {
@@ -235,12 +235,12 @@ packet_t::write_string(const char* s)
 	unsigned int 	sz;
 	char 			*p;
 
-	p = _data + len;
 	sz = strlen(s);
-
 	write_uint(sz);
-
+	p = _data + len;
 	strcpy(p, s);
+	
+	len += sz;
 
 	return 0;
 }
@@ -251,10 +251,12 @@ packet_t::write_string(const string& s)
 	unsigned int 	sz;
 	char 			*p;
 
-	p = _data + len;
 	sz = s.size();
 	write_uint(sz);
+	p = _data + len;
 	strcpy(p, s.c_str());
+
+	len += sz;
 
 	return 0;
 }

@@ -40,7 +40,6 @@ public:
 	int SetNonblock();
 
 	int Reconnect();
-
 private:
     int	socketfd_;
     string	host_;
@@ -50,7 +49,6 @@ private:
 private:
 	int Socket();
     int Close();
-
 };
 
 #endif
