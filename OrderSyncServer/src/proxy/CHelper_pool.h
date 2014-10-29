@@ -4,6 +4,7 @@
 #include <string.h>
 #include <vector>
 #include <helper_unit.h>
+#include "redis_helper.h"
 using std::map;
 using std::vector;
 using std::string;
@@ -22,6 +23,7 @@ public:
 	map<string, string> 				m_ipmap;
 	map<short, int> 					m_LevelCountMap;	//level---count 每个等级场的人数
 	vector<int> 						m_whitelist;        //容错命令白名单
+	map<int, redis_helper_t*> 			m_redis_map;
 };
 
 HTTP_SVR_NS_END

@@ -30,6 +30,18 @@
         <Cmd value="28756"/><!---->
         <Cmd value="28757"/><!---->
 	</CmdList>
+	<RedisList>
+		<Redis svid="1" ip="192.168.200.134" port="4501" />
+		<Redis svid="2" ip="192.168.200.134" port="4502" />
+		<Redis svid="3" ip="192.168.200.134" port="4503" />
+		<Redis svid="4" ip="192.168.200.134" port="4504" />
+		<Redis svid="5" ip="192.168.200.134" port="4505" />
+		<Redis svid="6" ip="192.168.200.134" port="4506" />
+		<Redis svid="7" ip="192.168.200.134" port="4507" />
+		<Redis svid="8" ip="192.168.200.134" port="4508" />
+		<Redis svid="9" ip="192.168.200.134" port="4509" />
+		<Redis svid="10" ip="192.168.200.134" port="4510" />
+	</RedisList>
 </Node>
 <IPMap>
         <IP eth0="192.168.100.154" eth1="192.168.100.154"/>
@@ -37,5 +49,6 @@
 <WhiteCmdList>
 	<UidList uids="1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20"/>
 </WhiteCmdList>
+
 
 </SYSTEM>

@@ -33,6 +33,8 @@
 #include <time.h>
 #include <sys/time.h>
 #include <string>
+#define __STDC_FORMAT_MACROS
+#include <inttypes.h>
 
 extern clib_log* g_pDebugLog;
 extern clib_log* g_pErrorLog;
@@ -775,6 +777,51 @@ CClientUnit::cmd_data_handler(NETInputPacket* pack)
 	__data_flow(data);
 
 	log_debug("-------- CClientUnit::cmd_data_handler end --------");
+}
+
+int
+CClientUnit::__data_flow(const string& data)
+{
+	Value 								value;
+	Reader 								reader;
+	time_t								mtime;
+	uint64_t 							oid;
+	string 								sql;
+	int 								rsz;
+	int									sid;
+	map<int, redis_helper_t*>::iterator itr;\
+	redis_helper_t						*redis;
+
+	log_debug("-------- CClientUnit::__data_flow begin --------");
+	if (!reader.parse(data, value)) {
+		log_error("data[%s] parse failed.", data.c_str());
+		return -1;
+	}
+
+	oid = value["id"].asUInt64();
+	mtime = value["mtime"].asUInt64();
+	sql = value["sql"].asString();
+
+	rsz = _helperpool->m_redis_map.size();
+
+	sid = oid % rsz;
+	
+	if (sid == 0) sid = rsz;
+
+	log_debug("sid: %d", sid);
+
+	itr = _helperpool->m_redis_map.find(sid);
+	if (itr != _helperpool->m_redis_map.end()) {
+		redis = itr->second;
+	} else { /* 未找到 redis */
+		log_error("order[%"PRIu64"] not found %d redis.", oid);
+		return -1;
+	}
+
+	redis->Enqueue("ORDER_Q", data);
+
+	log_debug("-------- CClientUnit::__data_flow end --------");
+	return 0;
 }
 
 HTTP_SVR_NS_END

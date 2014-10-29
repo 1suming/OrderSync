@@ -19,6 +19,7 @@ public: //method
     int open (void);
     int run (void);
 	int InitHelperUnit();
+	int init_redis_helper(); /* 初始化redis的实例集 */
 private:
 	int _active_helper(const int _level, const int _svid);
 

@@ -14,6 +14,7 @@
 using std::string;
 #include "CHelper_pool.h"
 #include "RealTimer.h"
+#include "redis_helper.h"
 
 #include <sstream>
 #include <iostream>
@@ -122,10 +123,10 @@ int CIncoming::open (void)
     }
 	
 	//init hall connect logic server
-//	if(InitHelperUnit() < 0) {
-//		log_boot ("InitHelperUnit failed.");
-//        return -1;
-//	}
+	if(InitHelperUnit() < 0) {
+		log_boot ("InitHelperUnit failed.");
+        return -1;
+	}
 	/* _LevelCountTimer->SetTimerList(_timerunit->GetTimerList(60*5));
 	_LevelCountTimer->SetHelperTimerList(_helpertimerlist);
 	_LevelCountTimer->StartTimer();
@@ -137,14 +138,6 @@ int CIncoming::open (void)
 
 int CIncoming::InitHelperUnit() // called by CIncoming::open()  ≥ı ºªØ server.xml
 {
-	map<int, vector<int> >::iterator iter = _helperpool->m_levelmap.begin();
-	for(; iter!=_helperpool->m_levelmap.end(); iter++) {
-		vector<int>& v = iter->second;
-		v.clear();
-	}
-	
-	_helperpool->m_svidlist.clear();
-	
 	CMarkupSTL  markup;
     if(!markup.Load("../conf/server.xml")) {       
         log_boot("Load server.xml failed.");
@@ -161,156 +154,55 @@ int CIncoming::InitHelperUnit() // called by CIncoming::open()  ≥ı ºªØ server.xm
 		return -1;    
 	}
 	
-	if(markup.FindElem("Node"))
-	{
-		if (!markup.IntoElem())    
-		{        
+	if(markup.FindElem("Node")) {
+		if (!markup.IntoElem()) {        
 			log_boot ("IntoElem failed.");       
 			return -1;    
 		}
 
-		if(!markup.FindElem("ServerList"))
-		{
-			log_boot ("FindElem [ServerList] failed.");     
+		if(!markup.FindElem("RedisList")) {
+			log_boot ("FindElem [RedisList] failed.");     
 			return -1; 
 		}
 		
-		if (!markup.IntoElem())    
-		{        
-			log_boot ("IntoElem [ServerList] failed.");       
+		if (!markup.IntoElem()) {        
+			log_boot ("IntoElem [RedisList] failed.");       
 			return -1;    
 		}
 		
-		while(markup.FindElem("Server"))
-		{
-			int 		svid =  atoi(markup.GetAttrib("svid").c_str());
-			int 		level = atoi(markup.GetAttrib("level").c_str());
-			string 		ip = markup.GetAttrib("ip");
-			int 		port = atoi(markup.GetAttrib("port").c_str());
-			CHelperUnit *pHelperUnit = NULL;
+		while(markup.FindElem("Redis")) {
+			int 			svid =  atoi(markup.GetAttrib("svid").c_str());
+			string 			ip = markup.GetAttrib("ip");
+			int 			port = atoi(markup.GetAttrib("port").c_str());
+			redis_helper_t 	*redis = NULL;
 
-			map<int, CHelperUnit*>::iterator iter = _helperpool->m_helpermap.find(svid);
-			if(iter != _helperpool->m_helpermap.end()) {
-				pHelperUnit = iter->second;
+			map<int, redis_helper_t*>::iterator iter = _helperpool->m_redis_map.find(svid);
+			if(iter != _helperpool->m_redis_map.end()) {
+				redis = iter->second;
 			} else {
-				pHelperUnit = new CHelperUnit(_pollerunit);
-				_helperpool->m_helpermap[svid] = pHelperUnit;
-			}
-			 
-			if (pHelperUnit == NULL) {
-				log_boot("pHelerUnit NULL");
-
-				return -1;
-			}
-
-			_helperpool->m_svidlist.push_back(svid);  // server¡–±Ì
-
-			pHelperUnit->addr = ip;
-			pHelperUnit->port = port;
-
-			if (pHelperUnit->connect() != 0) { /* connect back */
-				log_boot("HelperUnit:[%d] connect failed.", svid);
-				return -1;
+				redis = new redis_helper_t(ip, port, 5);
+				if (redis->Connect()) {
+					log_error("redis:[%s:%d] connect failed.", ip.c_str(), port);
+					delete redis;
+					return -1;
+				}
+				_helperpool->m_redis_map[svid] = redis;
 			}
 
-			vector<int>& v = _helperpool->m_levelmap[level];
-			v.push_back(svid);
-
-			this->_active_helper(level, svid); /* ÊøÄÊ¥ª */
-
-			log_boot("alloc server id:[%d], level:[%d], ip:[%s], port:[%d]", svid, level, ip.c_str(), port);
+			log_boot("redis id:[%d], ip:[%s], port:[%d]", svid, ip.c_str(), port);
 		}
 
-		if (!markup.OutOfElem())    
-		{        
-			log_boot ("OutOfElem [ServerList] failed.");       
-			return -1;    
-		}
-		
-		if(!markup.FindElem("CmdList"))
-		{
-			log_boot("Can not FindElem [CmdList] in server.xml failed.");
-			return -1;
-		}
-		
-		if (!markup.IntoElem())    
-		{        
-			log_boot ("IntoElem [CmdList] failed.");       
-			return -1;    
-		}
-
-		_helperpool->m_cmdlist.clear();
-		
-		while(markup.FindElem("Cmd")) {
-			int cmd = atoi(markup.GetAttrib("value").c_str());
-			//log_boot("cmd:[%d]", cmd);
-			_helperpool->m_cmdlist.push_back(cmd);
-		}
-		
-		if (!markup.OutOfElem())    
-		{        
-			log_boot ("OutOfElem [CmdList] failed.");       
+		if (!markup.OutOfElem()) {        
+			log_boot ("OutOfElem [RedisList] failed.");       
 			return -1;    
 		}
 	}
 
 	if (!markup.OutOfElem()) {        
-		log_boot ("OutOfElem [ServerList] failed.");       
+		log_boot ("OutOfElem [Node] failed.");       
 		return -1;    
 	}
 
-	if(!markup.FindElem("IPMap"))
-	{
-		log_boot ("FindElem [IPMap] failed.");     
-		return -1; 
-	}
-
-	if (!markup.IntoElem())    
-	{        
-		log_boot ("IntoElem [IPMap] failed.");       
-		return -1;    
-	}
-
-	while(markup.FindElem("IP"))
-	{
-		string eth0 = markup.GetAttrib("eth0");
-		string eth1 = markup.GetAttrib("eth1");
-		log_boot("%s||eth0:[%s], eth1:[%s]", __FUNCTION__, eth0.c_str(), eth1.c_str());
-		_helperpool->m_ipmap[eth0] = eth1;
-	}
-
-	if (!markup.OutOfElem())    
-	{        
-		log_boot ("OutOfElem [IPMap] failed.");       
-		return -1;    
-	}
-
-	_helperpool->m_whitelist.clear();
-
-	if(!markup.FindElem("WhiteCmdList"))
-	{
-		log_boot ("FindElem [WhiteCmdList] failed.");     
-		return -1; 
-	}
-
-	if (!markup.IntoElem())    
-	{        
-		log_boot ("IntoElem [WhiteCmdList] failed.");       
-		return -1;    
-	}
-	
-	while(markup.FindElem("CmdList"))
-	{
-		string strCmds = markup.GetAttrib("cmds");
-		vector<string> vec;
-		TGlobal::split_str(strCmds.c_str(), ",", vec);
-		for(int i=0; i<(int)vec.size(); i++)
-		{
-			int cmd = atoi(vec[i].c_str());
-			_helperpool->m_whitelist.push_back(cmd);
-			log_boot("%s||cmd:[%d]", __FUNCTION__, cmd);
-		}
-	}
 	return 0;
 }
 

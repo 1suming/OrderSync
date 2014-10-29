@@ -70,8 +70,6 @@ main(int argc, char** argv)
 
 	_init();
 
-#if 1
-
 	r = new redis_helper_t(g_conf.redis_ip, g_conf.redis_port);
 	if (r == NULL) {
 		log_error("new reids failed.");
@@ -94,7 +92,6 @@ main(int argc, char** argv)
 		return -1;
 	}
 
-
 	m = new mysql_helper_t(g_conf.mysql_ip, 
 						   g_conf.mysql_port, 
 		                   g_conf.mysql_username, 
@@ -109,7 +106,6 @@ main(int argc, char** argv)
 	}
 	m->UseDB(g_conf.mysql_db);
 
-
 	instance = new order_sync_client_t(f, c, m);
 	if (instance) {
 		instance->run();
@@ -117,7 +113,6 @@ main(int argc, char** argv)
 		log_error("new instance failed.");
 		return -1;
 	}
-#endif
 
 	return 0;
 }

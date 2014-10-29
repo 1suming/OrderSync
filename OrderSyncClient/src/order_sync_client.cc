@@ -32,6 +32,7 @@ order_sync_client_t::run()
 	Value 			value;
 	int				type;
 	unsigned long 	id;
+	FastWriter		writer;
 
 	while (1) {
 		if (_f) {
@@ -48,7 +49,8 @@ order_sync_client_t::run()
 				type = value["type"].asInt();
 				id = value["id"].asUInt64();
 				if (type == 1) { /* update order 需要获取创建时间，同步端需要依赖这个字段 */
-					value["time"] = (UInt64)get_ord_date(id); 
+					value["mtime"] = (UInt64)get_ord_date(id); 
+					json = writer.write(value); 
 				} 
 
 				out.begin(0x0002);
