@@ -45,9 +45,12 @@ CTcpClient::Send(const char* buffer, int size)
 				if (errno == EAGAIN || errno == EINTR) {
 					continue;
 				} else {
-					return -1;
+					Disconneced();
+					Close(); 
+					return 0;
 				}
 			} else if (cLen == 0) { // 连接关闭
+				Disconneced();
 				Close(); 
 				return 0;
 			} 
@@ -101,19 +104,23 @@ CTcpClient::Recv(char* buffer, int size)
 int
 CTcpClient::Socket()
 {
-    socketfd_ = socket(AF_INET, SOCK_STREAM, 0);
+	log_debug("--------CTcpClient::Socket begin --------");
+	socketfd_ = socket(AF_INET, SOCK_STREAM, 0);
 
     if (socketfd_ == -1){
-        return -1;
+		log_debug("--------CTcpClient::Socket end -1 --------");
+		return -1;
 	} else {
-        return 0;
+		log_debug("--------CTcpClient::Socket end 0 --------");
+		return 0;
 	}
 }
 
 int
 CTcpClient::Connect()
 {
-    int result = 0;
+	log_debug("--------CTcpClient::Connect begin --------");
+	int result = 0;
 
 	if (IsConnected) return 0;
 
@@ -127,8 +134,11 @@ CTcpClient::Connect()
 		result = connect(socketfd_, (struct sockaddr*)&remote, sizeof(struct sockaddr));
 
 		IsConnected = result == 0 ? true : false;
+
+		if (IsConnected) SetNonblock();
 	}
 
+	log_debug("--------CTcpClient::Connect end --------");
     return result;
 }
 
@@ -137,6 +147,7 @@ CTcpClient::Reconnect()
 {
 	int ret;
 
+	log_debug("--------CTcpClient::Reconnect begin --------");
 	ret = Socket();
 
 	if (ret == -1) {
@@ -144,6 +155,7 @@ CTcpClient::Reconnect()
 		return -1;
 	}
 
+	log_debug("--------CTcpClient::Reconnect begin --------");
 	return Connect();
 }
 

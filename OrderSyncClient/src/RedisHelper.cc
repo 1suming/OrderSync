@@ -76,10 +76,9 @@ CRedisHelper::Dequeue(const string& queue, string& value)
 {
 	reply = static_cast<redisReply*>(redisCommand(context, "lpop %s", queue.c_str()));
 
-	log_debug("KEY: %s\n", queue.c_str());
-	
+	//log_debug("KEY: %s\n", queue.c_str());
 	if (reply) {
-		log_debug("reply->type: %d\n", reply->type);
+		//log_debug("reply->type: %d\n", reply->type);
 
 		if (reply->type == 1) {
 			value = reply->str;		

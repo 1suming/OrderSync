@@ -16,11 +16,8 @@ extern conf_t g_conf;
 order_sync_client_t::
 ~order_sync_client_t()
 {
-	delete _f;
-	delete _c;
-	delete _m;
+	delete _f;delete _c;delete _m;
 }
-
 
 int
 order_sync_client_t::run()
@@ -64,7 +61,9 @@ order_sync_client_t::run()
 					log_debug("SEND: %d", r);
 
 					if (r == 0) {
-						if (_c->Reconnect() > 0) {
+						_c->Disconneced();
+						_c->Close();
+						if (_c->Reconnect() == 0) {
 							goto send;
 						} else {
 							log_error("connected server failed");
@@ -73,6 +72,8 @@ order_sync_client_t::run()
 						}
 					}
 				}
+			} else {
+				usleep(500); //如果没有记录就休眠
 			}
 
 			out.clean();

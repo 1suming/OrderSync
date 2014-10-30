@@ -94,7 +94,7 @@ int CProxyModule::open (int argc, char** argv)
 	m_pRedisServer->SetInfo(strHallIp, TGlobal::_port, TGlobal::_svid);
 
 	char szDebugName[100] = {0};
-	snprintf(szDebugName, sizeof(szDebugName), "HallServer.debug.%u", getpid());
+	snprintf(szDebugName, sizeof(szDebugName), "../log/debug.%u", getpid());
 	g_pDebugLog = new clib_log();    
 	g_pDebugLog->set_file(szDebugName);    
 	g_pDebugLog->set_level(5);    
@@ -103,7 +103,7 @@ int CProxyModule::open (int argc, char** argv)
 	g_pDebugLog->set_timeformat(CLIB_LOG_TFORMAT_0);
 
 	char szErrorName[100] = {0};
-	snprintf(szErrorName, sizeof(szErrorName), "HallServer.error.%u", getpid());
+	snprintf(szErrorName, sizeof(szErrorName), "../log/error.%u", getpid());
 	g_pErrorLog = new clib_log();    
 	g_pErrorLog->set_file(szErrorName); 
 	g_pErrorLog->set_level(5);    

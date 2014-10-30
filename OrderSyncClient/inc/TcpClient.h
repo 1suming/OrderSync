@@ -31,7 +31,7 @@ public:
 	 */
     int Connect();
 
-    int Disconneced();
+    int Disconneced() { IsConnected = false; return 0; }
 
 	int SetSendTimeout(unsigned int sec);
 
@@ -40,6 +40,8 @@ public:
 	int SetNonblock();
 
 	int Reconnect();
+
+	int Close();
 private:
     int	socketfd_;
     string	host_;
@@ -48,7 +50,6 @@ private:
     bool IsConnected;
 private:
 	int Socket();
-    int Close();
 };
 
 #endif

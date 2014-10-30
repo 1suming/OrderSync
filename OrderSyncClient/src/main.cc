@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <errno.h>
 
 bool 	is_daemon = true;
 conf_t 	g_conf; 
@@ -70,6 +71,11 @@ main(int argc, char** argv)
 
 	_init();
 
+	if (daemon(1, 0)) {
+		log_error("daemon failed.");
+		return -1;
+	}
+
 	r = new redis_helper_t(g_conf.redis_ip, g_conf.redis_port);
 	if (r == NULL) {
 		log_error("new reids failed.");
@@ -88,7 +94,7 @@ main(int argc, char** argv)
 		return -1;
 	} 
 	if (c->Connect()) {
-		log_error("connect server failed.");
+		log_error("connect server failed. %s", strerror(errno));
 		return -1;
 	}
 
