@@ -16,7 +16,9 @@ sync_get_table_name(const unsigned long& time)
 	struct tm 	now;
 	char		date[32];
 
-	localtime_r((const time_t*)&time, &now);
+	if (time == 0) return string("");
+
+	localtime_r((const time_t *)&time, &now); 
 
 	snprintf(date, 32, "payadmin_order_%4d%02d", now.tm_year, now.tm_mon);
 	
@@ -41,9 +43,10 @@ sync_order(CMysqlHelper* mysql, CRedisHelper* redis)
 			return -1;
 		}
 	} else {
-		redis->Enqueue("ORDER_Q", data);
+		redis->Dequeue("ORDER_Q", data);
 	}
 	
+	log_error("DATA: %s", data.c_str());
 	if (!reader.parse(data, json)) {
 		log_error("json parse failed.");
 		return -1;
@@ -55,13 +58,17 @@ sync_order(CMysqlHelper* mysql, CRedisHelper* redis)
 	table = sync_get_table_name(mtime);
 	if (table.empty()) {
 		log_error("get table failed.");
-		return -1;
+		// return -1;
 	}
+	log_debug("TABLE: %s", table.c_str());
 
 	pos = sql.find("paycenter_order");
 	if (pos != string::npos) {
 		sql.replace(pos, table.size(), table);
 	}
+
+	log_debug("SQL: %s", sql.c_str());
+
 	mysql->ExecuteQuery(sql);
 
 	return 0;

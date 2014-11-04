@@ -55,6 +55,11 @@ order_sync_client_t::run()
 				out.end();
 
 				if (_c) {
+					if (_c->check() == 0) {
+						_c->Disconneced();
+						_c->Close();
+						log_error("Tcp connection closed.");
+					}
 				send:
 					r = _c->Send(out.get_data(), out.get_len());
 
@@ -73,10 +78,10 @@ order_sync_client_t::run()
 					}
 				}
 			} else {
-				usleep(500); //如果没有记录就休眠
+				usleep(100); //如果没有记录就休眠
 			}
 
-			out.clean();
+			out.clean(); 
 		}
 	}
 

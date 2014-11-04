@@ -42,6 +42,9 @@ public:
 	int Reconnect();
 
 	int Close();
+
+	int check();
+
 private:
     int	socketfd_;
     string	host_;

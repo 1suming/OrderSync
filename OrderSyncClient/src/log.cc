@@ -23,6 +23,7 @@ static int  max_file_num    = DEFAULT_FILE_NUM;
 static int  max_file_size   = DEFAULT_FILE_SIZE;
 static int  cur_file_pos    = 0;
 
+
 extern bool is_daemon;
 
 void init_log(const char *app, const char *dir, int max_num, int max_size)

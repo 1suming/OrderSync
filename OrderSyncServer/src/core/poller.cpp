@@ -28,7 +28,7 @@ CPollerObject::~CPollerObject ()
 
 	if (netfd > 0)
     {
-		close (netfd);
+		close(netfd);
         log_debug ("netfd[%d] closed", netfd);
 		netfd = 0;
 	}

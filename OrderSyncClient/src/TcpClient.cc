@@ -65,38 +65,13 @@ CTcpClient::Send(const char* buffer, int size)
 int
 CTcpClient::Recv(char* buffer, int size)
 {
-    if(!IsConnected)
-	 {
-        return -1;
-	 }
+	int rlen;
 
-	 int iLen = 0;
+	if(!IsConnected) return 0;
+	
+    rlen = recv(socketfd_, buffer, size, 0);
 
-    iLen = recv(socketfd_, buffer, size, MSG_WAITALL);
-//	 int iLen = 0;
-//  int cLen = 0;
-//
-//  if(0 == size)
-//  {
-//      cLen = recv(socketfd_, buffer, 260, 0);
-//      iLen = cLen;
-//  }
-//  else
-//  {
-//      while (iLen < size)
-//      {
-// 	 cLen = recv(socketfd_, buffer + iLen, size - iLen, 0);
-//
-// 	 if (-1 == cLen)
-// 	 {
-// 	     return -1;
-// 	 }
-//
-// 	 iLen += cLen;
-//      }
-//  }
-
-    return iLen;
+    return rlen;
 }
 
 //private
@@ -155,7 +130,7 @@ CTcpClient::Reconnect()
 		return -1;
 	}
 
-	log_debug("--------CTcpClient::Reconnect begin --------");
+	log_debug("--------CTcpClient::Reconnect end --------");
 	return Connect();
 }
 
@@ -188,4 +163,25 @@ int
 CTcpClient::SetNonblock()
 {
 	return _set_nonblock(socketfd_);
+}
+
+int
+CTcpClient::check()
+{
+	int 	rlen;
+	char 	rbuff[4];
+
+	rlen = Recv(rbuff, 4);
+
+	if (rlen == -1) {
+		if (errno == EAGAIN || errno == EINTR || errno == EINPROGRESS) {
+			return 1;
+		} else {
+			return 0;
+		}
+	} else if (rlen == 0) {
+		return 0;
+	}
+
+	return rlen;
 }
