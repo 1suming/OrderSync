@@ -16,6 +16,8 @@
 
 int __log_level__ = 6;
 
+extern bool is_daemon;
+
 static char log_dir[128] = "../log";
 static char appname[32];
 static int  max_file_num    = DEFAULT_FILE_NUM;
@@ -107,8 +109,7 @@ void write_access(int access, const char* rsp_buf, const char* fmt, ...)
 
 void write_log (int level, const char *filename, const char *funcname, int lineno, const char *format, ...)
 {
-    if(daemon && level > __log_level__)  //守护进程并且该level不需要记录，则跳过
-    {
+    if (is_daemon && level > __log_level__) {
         return;
     }
     // save errno

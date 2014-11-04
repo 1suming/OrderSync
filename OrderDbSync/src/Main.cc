@@ -20,7 +20,6 @@ static const char* const INI_FILE = "../etc/server.ini";
 EMysqlConf mysql_conf = {0};
 ERedisConf redis_conf = {0};
 EServerConf server_conf = {0};
-
 pEQueueConf queue_conf = (pEQueueConf)malloc(sizeof(EQueueConf));
 
 #if _DAEMON_ 
@@ -45,7 +44,7 @@ main(int argc, char** argv)
 	char LogName[100];
 	
 	CDWorkDir(argv[0]);
-		
+	
 #ifdef _DAEMON_
 	if (daemon(1, 0) == 0) {
 		log_debug("daemon running.");
@@ -86,14 +85,9 @@ main(int argc, char** argv)
 			redis->Connect();
 		}	
 
-		sync_new_table(mysql); // new table?
-		
-		sync_game_log(redis, mysql);
-		sync_user_bankruptcy_log(redis, mysql);
-		sync_user_money_log(redis, mysql);
-		sync_user_score_log(redis, mysql);
+		sync_order(mysql,redis);
 
-		usleep(server_conf.sleep_msec * 1000);
+		// usleep(server_conf.sleep_msec * 1000);
 	}
 
 	return 0;
@@ -108,16 +102,16 @@ Init()
 	queue_conf->nums = 4;
 	queue_conf->names = (char**)malloc(sizeof(char*) * queue_conf->nums);
 
-	for (int i = 0; i < queue_conf->nums; i++)
-	{
+	for (int i = 0; i < queue_conf->nums; i++) {
 		queue_conf->names[i] = (char*)malloc(sizeof(char) * 50 ); // *(queue_conf->names + i)
 		
 		memset(queue_conf->names[i], 0, sizeof(queue_conf->names[i]));
 	}
 	
 	Load_Queue_Conf(INI_FILE, queue_conf);
-
 	Load_Server_Conf(INI_FILE, &server_conf);
+
+	return 0;
 }
 
 void
@@ -153,6 +147,8 @@ void CDWorkDir(const char * path)
 	char* p = dirname(rpath);
 
 	int i = chdir(p);
+
+	(void)i;
 
 	free(rpath);
 }
