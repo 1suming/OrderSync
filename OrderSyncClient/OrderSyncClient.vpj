@@ -221,6 +221,7 @@
 			<F N="inc/MysqlHelper.h"/>
 			<F N="inc/order_sync_client.h"/>
 			<F N="inc/packet.h"/>
+			<F N="inc/poller.h"/>
 			<F N="inc/RedisHelper.h"/>
 			<F N="inc/TcpClient.h"/>
 		</Folder>
@@ -232,6 +233,7 @@
 			<F N="src/MysqlHelper.cc"/>
 			<F N="src/order_sync_client.cc"/>
 			<F N="src/packet.cc"/>
+			<F N="src/poller.cc"/>
 			<F N="src/RedisHelper.cc"/>
 			<F N="src/TcpClient.cc"/>
 		</Folder>

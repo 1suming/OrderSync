@@ -72,6 +72,29 @@ enum PACKETVER
 	SERVER_PACKET_DEFAULT_SUBVER = 1
 };
 
+static uint64_t
+_htonll(uint64_t u)
+{
+	char 		*p, *q;
+	uint64_t 	t;
+
+	t = u;
+	p = (char*)&u;
+	q = (char*)&t;
+
+	q[0] = p[7];
+	q[1] = p[6];
+	q[2] = p[5];
+	q[3] = p[4];
+	q[4] = p[3];
+	q[5] = p[2];
+	q[6] = p[1];
+	q[7] = p[0];
+
+	return t;
+}
+
+#define _ntohll(v) _htonll(v)
 
 template <int _buffer_size>
 class PacketBase
@@ -263,7 +286,7 @@ public:
 	typedef PacketBase<_buffer_size> base;
 
 	int ReadInt(void)		{int nValue = -1; base::_Read((char*)&nValue, sizeof(int)); return ntohl(nValue);} //这里必需初始化
-	unsigned long ReadULong(void) {unsigned long nValue = -1; base::_Read((char*)&nValue, sizeof(unsigned long)); return ntohl(nValue);}
+	unsigned long ReadULong(void) {unsigned long nValue = -1; base::_Read((char*)&nValue, sizeof(unsigned long)); return _ntohll(nValue);}
 	int ReadIntDel(void)	{int nValue = -1; base::_ReadDel((char*)&nValue, sizeof(int)); return ntohl(nValue);} 
 	short ReadShort(void)	{short nValue = -1; base::_Read((char*)&nValue, sizeof(short)); return ntohs(nValue);}
 	BYTE ReadByte(void)		{BYTE nValue = -1; base::_Read((char*)&nValue, sizeof(BYTE)); return nValue;}
@@ -345,7 +368,7 @@ public:
 	typedef PacketBase<BUFFER_SIZE> base;
 
 	bool WriteInt(int nValue)		{int value = htonl(nValue); return base::_Write((char*)&value, sizeof(int));}
-	bool WriteULong(unsigned long nValue) {unsigned long value = htonl(nValue);return base::_Write((char*)&value, sizeof(unsigned long));}
+	bool WriteULong(unsigned long nValue) {unsigned long value = _htonll(nValue);return base::_Write((char*)&value, sizeof(unsigned long));}
 	bool WriteByte(BYTE nValue)		{return base::_Write((char*)&nValue, sizeof(BYTE));}
 	bool WriteShort(short nValue)	{short value = htons(nValue); return base::_Write((char*)&value, sizeof(short));}
 	//在正文首插入数据

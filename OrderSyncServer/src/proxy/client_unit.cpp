@@ -767,16 +767,32 @@ CClientUnit::cmd_login_handler(NETInputPacket* pack)
 int
 CClientUnit::cmd_data_handler(NETInputPacket* pack)
 {
-	string data;
+	string 			data;
+	uint64_t 		event_id;
+	NETOutputPacket out;
+	int				ret;
+	CEncryptDecrypt ed;
 
 	log_debug("-------- CClientUnit::cmd_data_handler begin --------");
+	event_id = pack->ReadULong();
 	data = pack->ReadString();
 
+	log_debug("event_id: %"PRIu64, event_id);
 	log_debug("DATA: %s", data.c_str());
 
 	__data_flow(data);
+	
+	out.Begin(SERVER_CMD_DATA_REP);
+	out.WriteULong(event_id);
+	out.End();
+	ed.EncryptBuffer(&out);
+
+	this->add_rsp_buf(out.packet_buf(), out.packet_size());
+	ret = this->send();
 
 	log_debug("-------- CClientUnit::cmd_data_handler end --------");
+
+	return ret;
 }
 
 int
@@ -814,7 +830,7 @@ CClientUnit::__data_flow(const string& data)
 	if (itr != _helperpool->m_redis_map.end()) {
 		redis = itr->second;
 	} else { /* 未找到 redis */
-		log_error("order[%"PRIu64"] not found %d redis.", oid);
+		log_error("order[%"PRIu64"] not found redis.", oid);
 		return -1;
 	}
 

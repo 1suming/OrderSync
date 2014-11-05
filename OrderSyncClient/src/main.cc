@@ -6,6 +6,7 @@
 #include "TcpClient.h"
 #include "MysqlHelper.h"
 #include "conf.h"
+#include "poller.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -62,6 +63,7 @@ main(int argc, char** argv)
 	tcp_client_t		*c;
 	redis_helper_t		*r;
 	mysql_helper_t		*m;
+	poller_t			*p;
 	char 				log_prefix[64];
 	pid_t				pid;
 
@@ -112,7 +114,17 @@ main(int argc, char** argv)
 	}
 	m->UseDB(g_conf.mysql_db);
 
-	instance = new order_sync_client_t(f, c, m);
+	p = new poller_t();
+	if (p == NULL) {
+		log_error("new poller failed.");
+		return -1;
+	}
+	if (p->create() <= 0) {
+		log_error("new epoll failed.");
+		return -1;
+	}
+
+	instance = new order_sync_client_t(f, c, m, p);
 	if (instance) {
 		instance->run();
 	} else {

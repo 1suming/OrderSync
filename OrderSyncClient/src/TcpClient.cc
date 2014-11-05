@@ -19,7 +19,8 @@ _set_nonblock(int fd)
 CTcpClient::CTcpClient(string host, unsigned short port)
 	:host_(host),
 	 port_(port),
-	 IsConnected(false)
+	 IsConnected(false),
+	 event(0)
 {
     Socket();
 }
@@ -80,12 +81,14 @@ int
 CTcpClient::Socket()
 {
 	log_debug("--------CTcpClient::Socket begin --------");
+	log_debug("old_socket: %d", socketfd_);
 	socketfd_ = socket(AF_INET, SOCK_STREAM, 0);
 
     if (socketfd_ == -1){
 		log_debug("--------CTcpClient::Socket end -1 --------");
 		return -1;
 	} else {
+		log_debug("new_socket: %d", socketfd_);
 		log_debug("--------CTcpClient::Socket end 0 --------");
 		return 0;
 	}

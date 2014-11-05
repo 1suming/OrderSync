@@ -39,7 +39,7 @@ public:
 	{
 	}
 
-	~packet_t() { delete _data; }
+	~packet_t() { free(_data); }
 public:
 	int begin(unsigned short cmd) 
 	{

@@ -134,7 +134,7 @@ CMD(CLIENT_CMD_LOGIN_REQ, 0x1, CLIENT_BASE);			/* 同步客户端登陆请求 */
 CMD(SERVER_CMD_LOGIN_REP, 0x1, SERVER_BASE);			/* 同步客户端登陆响应 */
 
 CMD(CLIENT_CMD_DATA_REQ, 0x2, CLIENT_BASE);				/* 数据同步请求 */
-CMD(SERVER_CMD_DATA_REP, 0x2, SERVER_BASE);
+CMD(SERVER_CMD_DATA_REP, 0x2, SERVER_BASE);				/* 数据同步响应 */
 
 enum {
 	JobWorkerType = 1,

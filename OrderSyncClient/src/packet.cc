@@ -398,6 +398,8 @@ packet_t::get_header()
 int
 packet_t::parse_packet(const char* data, unsigned short size)
 {
+	int ret;
+
 	if (_data == NULL) {
 		_data = (char*)malloc(size);
 
@@ -407,13 +409,17 @@ packet_t::parse_packet(const char* data, unsigned short size)
 
 		sz = size;
 		len = size;
-		idx = 0;
+		idx = 9;
 	}
 
 	memcpy(_data, data, size);
+	len = size;
+	idx = 9;
 
-	if (decode()) {
-		return -2;
+	ret = decode();
+
+	if (ret == -1) {
+		return -1;
 	}
 
 	return 0;

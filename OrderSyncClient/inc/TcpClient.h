@@ -5,6 +5,10 @@
 
 using std::string;
 
+#define READABLE 	0x001
+#define WRITEABLE 	0x004
+#define ET 			1 << 31
+
 class CTcpClient {
 public:
     CTcpClient(string host, unsigned short port);
@@ -45,12 +49,17 @@ public:
 
 	int check();
 
-private:
-    int	socketfd_;
-    string	host_;
-    unsigned short port_;
+	uint32_t get_event() { return event; }
+	int	get_fd() { return socketfd_; }
 
-    bool IsConnected;
+	void readable(bool s) { s ? event |= READABLE : event &= ~READABLE; }
+	void writeable(bool s) { s ? event |= WRITEABLE : event &= ~WRITEABLE; }
+private:
+    int				socketfd_;
+    string			host_;
+    unsigned short 	port_;
+	bool 			IsConnected;
+	uint32_t		event;
 private:
 	int Socket();
 };
