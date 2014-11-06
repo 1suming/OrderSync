@@ -30,6 +30,7 @@ _dump_conf()
 	log_debug("[mysql_db]: %.63s", g_conf.mysql_db);
 	log_debug("[mysql_username]: %.63s", g_conf.mysql_username);
 	log_debug("[mysql_password]: %.63s", g_conf.mysql_password);
+	log_debug("[client_id]: %d", g_conf.client_id);
 }
 
 static void
@@ -51,6 +52,8 @@ _init()
 	read_profile_string("mysql", "db", g_conf.mysql_db, sizeof g_conf.mysql_db, "", f);
 	read_profile_string("mysql", "username", g_conf.mysql_username, sizeof g_conf.mysql_username, "", f);
 	read_profile_string("mysql", "password", g_conf.mysql_password, sizeof g_conf.mysql_password, "", f);
+
+	g_conf.client_id = read_profile_int("client", "id", 0, f);
 
 	_dump_conf();
 }

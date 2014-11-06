@@ -393,9 +393,6 @@ CClientUnit::HandleInputBuf(const char *pData, int len)
 	
 	/* 协议命令处理 */
 	switch (cmd) {
-		case CLIENT_CMD_LOGIN_REQ:
-			ret = cmd_login_handler(&reqPacket);
-			break;
 		case CLIENT_CMD_DATA_REQ:
 			ret = cmd_data_handler(&reqPacket);
 			break;
@@ -749,13 +746,9 @@ CClientUnit::_get_job_worker()
 }
 
 int
-CClientUnit::cmd_login_handler(NETInputPacket* pack)
+CClientUnit::cmd_login_handler(int id)
 {
-	int id;
-
 	log_debug("-------- CClientUnit::cmd_login_handle begin --------");
-
-	id = pack->ReadInt();
 
 	_helperpool->m_objmap[id] = _decoderunit;
 
@@ -772,10 +765,14 @@ CClientUnit::cmd_data_handler(NETInputPacket* pack)
 	NETOutputPacket out;
 	int				ret;
 	CEncryptDecrypt ed;
+	int				client_id;
 
 	log_debug("-------- CClientUnit::cmd_data_handler begin --------");
+	client_id = pack->ReadInt();
 	event_id = pack->ReadULong();
 	data = pack->ReadString();
+
+	cmd_login_handler(client_id);
 
 	log_debug("event_id: %"PRIu64, event_id);
 	log_debug("DATA: %s", data.c_str());

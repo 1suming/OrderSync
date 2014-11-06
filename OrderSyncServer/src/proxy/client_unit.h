@@ -136,7 +136,7 @@ private:
 	int ProcessOpenDebug(NETInputPacket *pPacket);
 
 	int client_cmd_req_handler(NETInputPacket* pack);
-	int cmd_login_handler(NETInputPacket* pack);
+	int cmd_login_handler(int id);
 	int cmd_data_handler(NETInputPacket* pack);
 
 	int __data_flow(const string& data); /* 处理数据流 */

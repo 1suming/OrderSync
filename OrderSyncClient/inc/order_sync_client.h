@@ -31,7 +31,6 @@ private:
 	tcp_client_t 	*_c;
 	mysql_helper_t	*_m;
 	poller_t		*_p;
-
 	uint64_t		event_id; /* 每次同步的标识ID */
 };
 

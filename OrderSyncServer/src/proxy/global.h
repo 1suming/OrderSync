@@ -17,8 +17,7 @@ using std::string;
 
 HTTP_SVR_NS_BEGIN
 
-class TGlobal
-{
+class TGlobal {
 public: //method
     static void ShowVersion(void);
     static void ShowUsage(void);

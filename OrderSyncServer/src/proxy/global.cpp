@@ -22,6 +22,8 @@ using namespace std;
 
 HTTP_SVR_NS_BEGIN
 
+const int aaa = 1;
+
 extern CHelperPool *_helperpool;
 
 volatile int*   TGlobal::_module_close           = NULL;

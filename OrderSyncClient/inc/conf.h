@@ -13,6 +13,7 @@ struct conf_s {
 	char 			mysql_username[64];
 	char 			mysql_password[64];
 	char 			mysql_db[64];
+	int				client_id;
 };
 
 #endif

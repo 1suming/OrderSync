@@ -89,6 +89,7 @@ order_sync_client_t::run()
 					} 
 
 					out.begin(0x0002);
+					out.write_int(g_conf.client_id);
 					out.write_uint64(event_id);
 					out.write_string(json);
 					out.end();
@@ -190,6 +191,5 @@ order_sync_client_t::get_ord_date(uint64_t id)
 
 	return t;
 }
-
 
 
