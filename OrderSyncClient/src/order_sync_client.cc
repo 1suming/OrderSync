@@ -84,7 +84,7 @@ order_sync_client_t::run()
 					type = value["type"].asInt();
 					id = value["id"].asUInt64();
 					if (type == 1) { /* update order 需要获取创建时间，同步端需要依赖这个字段 */
-						value["mtime"] = (UInt64)get_ord_date(id); 
+						value["mtime"] = (Int64)get_ord_date(id); // 这里返回错误的话，是否需要处理
 						json = writer.write(value); 
 					} 
 
@@ -186,10 +186,10 @@ order_sync_client_t::get_ord_date(uint64_t id)
 		}
 	} else {
 		log_error("mysql execute failed.");
-		return -1;
+		return time(NULL);//-1;
 	}
 
-	return t;
+	return time(NULL); //测试是暂时返回
 }
 
 

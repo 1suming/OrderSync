@@ -78,16 +78,7 @@ main(int argc, char** argv)
 	}
 
 	while (1) {
-		if (redis->IsActived()) {
-			printf("redis server connected.\n");
-		} else {
-			printf("redis server not connected.\n");
-			redis->Connect();
-		}	
-
 		sync_order(mysql,redis);
-
-		// usleep(server_conf.sleep_msec * 1000);
 	}
 
 	return 0;

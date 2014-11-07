@@ -9,8 +9,7 @@ namespace Helper
 
 class CMysqlResult;
 
-class CMysqlHelper
-{
+class CMysqlHelper {
 public:
 	CMysqlHelper(const std::string& host, unsigned int port, const std::string& user, 
 		const std::string& passwd);
@@ -21,7 +20,7 @@ public:
 	int UseDB(const std::string& db);
 
 	CMysqlResult* ExecuteQuery(const std::string& sql);
-	unsigned long ExecuteNonQuery(const std::string& sql);
+	int ExecuteNonQuery(const std::string& sql);
 
 	bool IsConnected();
 

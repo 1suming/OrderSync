@@ -52,3 +52,9 @@ Load_Server_Conf(const char* file, pEServerConf pConf)
 
 	return 0;
 }
+
+int
+load_table_conf(const char* file, table_conf_t* ptable)
+{
+
+}

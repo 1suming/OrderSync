@@ -11,16 +11,24 @@ using namespace Helper;
 using namespace Json;
 
 static string
-sync_get_table_name(const unsigned long& time)
+sync_get_table_name(const unsigned long& mtime)
 {
 	struct tm 	now;
 	char		date[32];
+	time_t		t;
 
-	if (time == 0) return string("");
+	log_debug("mtime: %lu", mtime);
 
-	localtime_r((const time_t *)&time, &now); 
-
-	snprintf(date, 32, "payadmin_order_%4d%02d", now.tm_year, now.tm_mon);
+	if (mtime == 0) { // insert
+		t = time(NULL);
+		localtime_r(&t, &now); 
+		snprintf(date, 32, "payadmin_order_%4d%02d", 
+							now.tm_year + 1900, now.tm_mon ? now.tm_mon + 1 : 12);
+	} else { // update
+		localtime_r((const time_t *)&mtime, &now); 
+		snprintf(date, 32, "payadmin_order_%4d%02d", 
+							now.tm_year + 1900, now.tm_mon ? now.tm_mon + 1 : 12);
+	}
 	
 	return string(date);
 }
@@ -35,6 +43,7 @@ sync_order(CMysqlHelper* mysql, CRedisHelper* redis)
 	Value			json;
 	Reader			reader;
 	size_t			pos;
+	int				urows;
 
 	if (!redis->IsActived()) {
 		redis->Connect();
@@ -46,7 +55,13 @@ sync_order(CMysqlHelper* mysql, CRedisHelper* redis)
 		redis->Dequeue("ORDER_Q", data);
 	}
 	
-	log_error("DATA: %s", data.c_str());
+	if (!data.empty()) {
+		log_debug("DATA: %s", data.c_str()); 
+	} else {
+		usleep(100000);
+		return 0;
+	}
+
 	if (!reader.parse(data, json)) {
 		log_error("json parse failed.");
 		return -1;
@@ -64,13 +79,16 @@ sync_order(CMysqlHelper* mysql, CRedisHelper* redis)
 
 	pos = sql.find("paycenter_order");
 	if (pos != string::npos) {
-		sql.replace(pos, table.size(), table);
+		sql.replace(pos, strlen("paycenter_order"), table);
 	}
 
 	log_debug("SQL: %s", sql.c_str());
 
-	mysql->ExecuteQuery(sql);
+	urows = mysql->ExecuteNonQuery(sql);
 
+	if (urows == -1) {
+		log_error("DB Error: %d %s", mysql->GetErrNo(), mysql->GetErrMsg());
+	}
 	return 0;
 }
 

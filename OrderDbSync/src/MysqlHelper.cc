@@ -81,26 +81,22 @@ CMysqlHelper::ExecuteQuery(const std::string& sql)
 	return new CMysqlResult(res);
 }
 
-unsigned long
+int
 CMysqlHelper::ExecuteNonQuery(const std::string& sql)
 {
 	int res = mysql_query(&mysql_, sql.c_str());
 
-	if (res)
-	{
+	if (res == 0) {
 		MYSQL_RES* result = mysql_store_result(&mysql_);
 		
-		if ( result != NULL)
-		{
+		if ( result != NULL) {
 			return mysql_affected_rows(&mysql_);
-		}
-		else
-		{
+		} else {
 			return 0;
 		}
+	} else {
+		return -1;
 	}
-	else
-		return res;
 }
 
 bool
