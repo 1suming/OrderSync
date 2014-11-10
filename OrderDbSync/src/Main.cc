@@ -17,15 +17,14 @@ bool is_daemon = false;
 
 static const char* const INI_FILE = "../etc/server.ini";
 
-EMysqlConf mysql_conf = {0};
-ERedisConf redis_conf = {0};
-EServerConf server_conf = {0};
-pEQueueConf queue_conf = (pEQueueConf)malloc(sizeof(EQueueConf));
+EMysqlConf 		mysql_conf = {"", 0, "", "", ""};
+ERedisConf 		redis_conf = {"", 0, 0};
+EServerConf 	server_conf = {"", 0};
+pEQueueConf 	queue_conf = (pEQueueConf)malloc(sizeof(EQueueConf));
+table_conf_t 	table_conf = {{""}, {""}};
 
 #if _DAEMON_ 
-
 #define printf(fmt, args...)	log_debug(fmt, ##args)
-
 #endif
 
 
@@ -101,6 +100,7 @@ Init()
 	
 	Load_Queue_Conf(INI_FILE, queue_conf);
 	Load_Server_Conf(INI_FILE, &server_conf);
+	load_table_conf(INI_FILE, &table_conf);
 
 	return 0;
 }
@@ -120,13 +120,18 @@ Show_Conf()
 	printf("redis->timeout: %d\n", redis_conf.timeout);
 	printf("-------------------------------\n");
 	
-	for(int i = 0; i < queue_conf->nums; i++)
-	{
+	for(int i = 0; i < queue_conf->nums; i++) {
 		printf("queue->queue: %s\n", *(queue_conf->names + i));	
 	}
+
 	printf("-------------------------------\n");
 	printf("server->version: %s\n", server_conf.version);
 	printf("server->sleep_msec: %d\n", server_conf.sleep_msec);
+	printf("-------------------------------\n");
+
+	printf("-------------------------------\n");
+	printf("table_conf.old_name: %s\n", table_conf.old_name);
+	printf("table_conf.new_name: %s\n", table_conf.new_name);
 	printf("-------------------------------\n");
 
 }

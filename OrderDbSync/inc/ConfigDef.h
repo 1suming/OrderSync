@@ -33,7 +33,7 @@ typedef struct table_conf_s table_conf_t;
 struct table_conf_s {
 	char old_name[128];
 	char new_name[128];
-}
+};
 
 int
 Load_Mysql_Conf(const char* file, pEMysqlConf pConf);

@@ -56,5 +56,8 @@ Load_Server_Conf(const char* file, pEServerConf pConf)
 int
 load_table_conf(const char* file, table_conf_t* ptable)
 {
+	read_profile_string("table", "old_name", ptable->old_name, sizeof(ptable->old_name), "", file);
+	read_profile_string("table", "new_name", ptable->new_name, sizeof(ptable->new_name), "", file);
 
+	return 0;
 }

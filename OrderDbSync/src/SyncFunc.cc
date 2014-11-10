@@ -3,6 +3,7 @@
 #include "MysqlHelper.h"
 #include "json/json.h"
 #include "Log.h"
+#include "ConfigDef.h"
 
 #include <string>
 
@@ -10,11 +11,13 @@ using std::string;
 using namespace Helper;
 using namespace Json;
 
+extern table_conf_t table_conf;
+
 static string
 sync_get_table_name(const unsigned long& mtime)
 {
 	struct tm 	now;
-	char		date[32];
+	char		date[strlen(table_conf.new_name)];
 	time_t		t;
 
 	log_debug("mtime: %lu", mtime);
@@ -22,11 +25,11 @@ sync_get_table_name(const unsigned long& mtime)
 	if (mtime == 0) { // insert
 		t = time(NULL);
 		localtime_r(&t, &now); 
-		snprintf(date, 32, "payadmin_order_%4d%02d", 
+		snprintf(date, 128, table_conf.new_name, 
 							now.tm_year + 1900, now.tm_mon ? now.tm_mon + 1 : 12);
 	} else { // update
 		localtime_r((const time_t *)&mtime, &now); 
-		snprintf(date, 32, "payadmin_order_%4d%02d", 
+		snprintf(date, 128, table_conf.new_name, 
 							now.tm_year + 1900, now.tm_mon ? now.tm_mon + 1 : 12);
 	}
 	
@@ -77,9 +80,9 @@ sync_order(CMysqlHelper* mysql, CRedisHelper* redis)
 	}
 	log_debug("TABLE: %s", table.c_str());
 
-	pos = sql.find("paycenter_order");
+	pos = sql.find(table_conf.old_name);
 	if (pos != string::npos) {
-		sql.replace(pos, strlen("paycenter_order"), table);
+		sql.replace(pos, strlen(table_conf.old_name), table);
 	}
 
 	log_debug("SQL: %s", sql.c_str());
