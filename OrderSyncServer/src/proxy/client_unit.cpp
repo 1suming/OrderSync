@@ -802,7 +802,7 @@ CClientUnit::__data_flow(const string& data)
 	string 								sql;
 	int 								rsz;
 	int									sid;
-	map<int, redis_helper_t*>::iterator itr;\
+	map<int, redis_helper_t*>::iterator itr;
 	redis_helper_t						*redis;
 
 	log_debug("-------- CClientUnit::__data_flow begin --------");

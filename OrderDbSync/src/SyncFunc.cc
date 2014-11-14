@@ -12,9 +12,10 @@ using namespace Helper;
 using namespace Json;
 
 extern table_conf_t table_conf;
+extern EMysqlConf 	mysql_conf;
 
 static string
-sync_get_table_name(const unsigned long& mtime)
+sync_get_table_name(const long& mtime)
 {
 	struct tm 	now;
 	char		date[strlen(table_conf.new_name)];
@@ -36,17 +37,49 @@ sync_get_table_name(const unsigned long& mtime)
 	return string(date);
 }
 
+static int
+__repair_sql(string& sql, uint64_t pid)
+{
+	size_t 	pos, pos2;
+	char 	temp[64];
+	char	*dm = ")";
+
+	pos = sql.find(dm);
+	if (pos != string::npos) {
+		sql.replace(pos, strlen(dm), ",pid)");
+	} else {
+		return -1;
+	}
+
+	pos = sql.find(dm);
+	if (pos != string::npos) {
+		pos2 = sql.find(dm, pos + 1);
+		if (pos2 != string::npos) {
+			snprintf(temp, 64, ",%lu)", pid);
+			sql.replace(pos2, strlen(dm), temp);
+		} else {
+			return -1;
+		}
+	} else {
+		return -1;
+	}
+
+	return 0;
+}
+
 int
 sync_order(CMysqlHelper* mysql, CRedisHelper* redis)
 {
 	string 			table;
 	string 			sql;
 	string 			data;
-	unsigned long 	mtime;
+	long 			mtime;
 	Value			json;
 	Reader			reader;
 	size_t			pos;
 	int				urows;
+	int				type;
+	uint64_t		id;
 
 	if (!redis->IsActived()) {
 		redis->Connect();
@@ -71,12 +104,13 @@ sync_order(CMysqlHelper* mysql, CRedisHelper* redis)
 	}
 
 	sql = json["sql"].asString();
-	mtime = json["mtime"].asUInt64();
+	type = json["type"].asInt();
+	mtime = type == 0 ? json["stime"].asInt64() : json["mtime"].asInt64();
 
 	table = sync_get_table_name(mtime);
 	if (table.empty()) {
 		log_error("get table failed.");
-		// return -1;
+		return -1;
 	}
 	log_debug("TABLE: %s", table.c_str());
 
@@ -85,13 +119,23 @@ sync_order(CMysqlHelper* mysql, CRedisHelper* redis)
 		sql.replace(pos, strlen(table_conf.old_name), table);
 	}
 
+	if (type == 0) { // insert
+		id = json["id"].asUInt64();
+		__repair_sql(sql, id); // add pid 
+	}
+
 	log_debug("SQL: %s", sql.c_str());
 
-	urows = mysql->ExecuteNonQuery(sql);
+	if (!mysql->IsConnected()) {
+		mysql->Connect();
+		mysql->UseDB(mysql_conf.db);
+	} 
 
+	urows = mysql->ExecuteNonQuery(sql); 
 	if (urows == -1) {
 		log_error("DB Error: %d %s", mysql->GetErrNo(), mysql->GetErrMsg());
 	}
+
 	return 0;
 }
 

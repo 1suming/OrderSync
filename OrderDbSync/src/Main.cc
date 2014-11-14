@@ -133,7 +133,6 @@ Show_Conf()
 	printf("table_conf.old_name: %s\n", table_conf.old_name);
 	printf("table_conf.new_name: %s\n", table_conf.new_name);
 	printf("-------------------------------\n");
-
 }
 
 void CDWorkDir(const char * path)

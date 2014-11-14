@@ -30,12 +30,12 @@ public:
 	//static CMysqlHelper* NewHelper();
 	
 private:
-	std::string host_;
-	unsigned int port_;
-	std::string user_;
-	std::string passwd_;
+	std::string 	host_;
+	unsigned int 	port_;
+	std::string 	user_;
+	std::string 	passwd_;
 
-	MYSQL mysql_;
+	MYSQL 			mysql_;
 };
 
 class CMysqlResult

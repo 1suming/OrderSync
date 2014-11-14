@@ -16,6 +16,9 @@ using namespace Json;
 
 extern conf_t g_conf;
 
+#define __FREE_TIME	1000 * 1000 // 1s 无数据时休眠时间
+#define __EXEC_TIME 10 * 1000 // 5ms  处理完一条记录后睡眠的时间
+
 order_sync_client_t::
 ~order_sync_client_t()
 {
@@ -151,7 +154,11 @@ order_sync_client_t::run()
 
 					out.clean();
 					event_id++;
+					usleep(__EXEC_TIME);
+				} else {
+					usleep(__FREE_TIME);
 				}
+
 			} // if (_f)
 		}
 	} // while
@@ -176,6 +183,10 @@ order_sync_client_t::get_ord_date(uint64_t id)
 		log_debug("sql: %s", sql.c_str());
 	}
 
+	if (!_m->IsConnected()) {
+		_m->Connect();
+		_m->UseDB(g_conf.mysql_db);
+	}
 	r = _m->ExecuteQuery(sql);
 
 	if (r) {

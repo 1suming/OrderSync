@@ -70,7 +70,6 @@ public:
 
 		h = (header_t*)_data;
 		
-		log_debug("len: %d", len);
 		h->len = htons(len - 2);
 		h->mark[0] = 'B';
 		h->mark[1] = 'Y';

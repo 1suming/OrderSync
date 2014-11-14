@@ -15,4 +15,5 @@ using Helper::CMysqlHelper;
 int
 sync_order(CMysqlHelper* mysql, CRedisHelper* redis);
 
+
 #endif
