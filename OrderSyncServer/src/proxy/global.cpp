@@ -90,7 +90,7 @@ int TGlobal::DaemonInit (const char* conf_file)
     string log_size = markup.GetAttrib("LogSize");
 
 	char szLogName[256] = {0};
-	snprintf(szLogName, sizeof(szLogName), "HallServer.log.%u",  getpid());
+	snprintf(szLogName, sizeof(szLogName), "Log_%u",  getpid());
 	init_log(szLogName, log_dir.c_str(), atoi(log_num.c_str()), atoi(log_size.c_str()));
 
     string log_level = markup.GetAttrib("LogLevel");

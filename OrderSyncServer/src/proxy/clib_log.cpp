@@ -15,8 +15,6 @@
  * @date    2006/01/09
  * @brief   CLIB log.
  */
-#ifndef WIN32
-
 #include "clib_log.h" 
 
 
@@ -625,5 +623,5 @@ int clib_log::vwrite( const int  ai_level,
 }
 /* }}} */
 
-#endif
+
 

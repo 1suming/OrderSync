@@ -16,8 +16,13 @@ using namespace Json;
 
 extern conf_t g_conf;
 
-#define __FREE_TIME	1000 * 1000 // 1s 无数据时休眠时间
-#define __EXEC_TIME 10 * 1000 // 5ms  处理完一条记录后睡眠的时间
+#define __FREE_TIME		1000 * 1000 // 1s 无数据时休眠时间
+#define __EXEC_TIME 	10 * 1000 // 10ms  处理完一条记录后睡眠的时间
+#define __CMD_DATA_SYNC 0x0002
+
+#ifndef ALLOC
+#define ALLOC(P, SZ) P = (__typeof__(P))malloc(SZ); if (P) memset(P, 0, SZ)
+#endif
 
 order_sync_client_t::
 ~order_sync_client_t()
@@ -40,7 +45,7 @@ order_sync_client_t::run()
 	int					ev_nums;
 	char				*rbuff;
 
-	rbuff = (char*)malloc(1024);
+	ALLOC(rbuff, 1024);
 
 	_c->readable(true);
 	_c->writeable(true);
@@ -91,7 +96,7 @@ order_sync_client_t::run()
 						json = writer.write(value); 
 					} 
 
-					out.begin(0x0002);
+					out.begin(__CMD_DATA_SYNC);
 					out.write_int(g_conf.client_id);
 					out.write_uint64(event_id);
 					out.write_string(json);

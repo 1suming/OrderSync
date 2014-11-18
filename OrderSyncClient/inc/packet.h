@@ -26,8 +26,9 @@ struct header_s {
 };
 #pragma pack(pop)
 
-#define ALLOC(p, sz) p = malloc(sz)
-
+#ifndef ALLOC
+#define ALLOC(p, sz) p = (__typeof__(p))malloc(sz); if (p) memset(p, 0, sz)
+#endif
 
 class packet_t {
 public:

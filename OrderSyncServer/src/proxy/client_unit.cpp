@@ -44,6 +44,10 @@ using namespace Json;
 using std::string;
 
 #define MAX_ERR_RSP_MSG_LEN 4096
+#define __REDIS_ID(sid, id, sz) do {	\
+	sid = id % sz;						\
+	if (sid == 0) sid = sz;				\
+} while(0)				
 
 extern CMemPool* _webMp;
 extern Watchdog* LogFile;
@@ -725,7 +729,6 @@ CClientUnit::_get_job_worker()
 	CHelperUnit							*h = NULL;
 	
 	l_iter = _helperpool->m_levelmap.find(JobWorkerType);
-
 	if (l_iter != _helperpool->m_levelmap.end()) {
 		vector<int>& workers = l_iter->second;
 
@@ -749,11 +752,8 @@ int
 CClientUnit::cmd_login_handler(int id)
 {
 	log_debug("-------- CClientUnit::cmd_login_handle begin --------");
-
 	_helperpool->m_objmap[id] = _decoderunit;
-
 	log_debug("-------- CClientUnit::cmd_login_handle end --------");
-
 	return 0;
 }
 
@@ -774,8 +774,7 @@ CClientUnit::cmd_data_handler(NETInputPacket* pack)
 
 	cmd_login_handler(client_id);
 
-	log_debug("event_id: %"PRIu64, event_id);
-	log_debug("DATA: %s", data.c_str());
+	log_debug("client_id: %d event_id: %"PRIu64" data: %s", client_id, event_id, data.c_str());
 
 	__data_flow(data);
 	
@@ -801,7 +800,7 @@ CClientUnit::__data_flow(const string& data)
 	uint64_t 							oid;
 	string 								sql;
 	int 								rsz;
-	int									sid;
+	int									sid = 0;
 	map<int, redis_helper_t*>::iterator itr;
 	redis_helper_t						*redis;
 
@@ -812,15 +811,12 @@ CClientUnit::__data_flow(const string& data)
 	}
 
 	oid = value["id"].asUInt64();
-	mtime = value["mtime"].asUInt64();
+	mtime = value["mtime"].asInt64();
 	sql = value["sql"].asString();
 
 	rsz = _helperpool->m_redis_map.size();
 
-	sid = oid % rsz;
-	
-	if (sid == 0) sid = rsz;
-
+	__REDIS_ID(sid, oid, rsz);
 	log_debug("sid: %d", sid);
 
 	itr = _helperpool->m_redis_map.find(sid);

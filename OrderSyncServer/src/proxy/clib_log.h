@@ -15,7 +15,6 @@
  * @date    2006/01/10
  * @brief   Define value.
  */
-#ifndef WIN32
 
 #ifndef _CLIB_LOG_H_
 #define _CLIB_LOG_H_
@@ -95,8 +94,7 @@
 * 支持日志分级；
 * 支持染色日志；
 */
-class clib_log
-{
+class clib_log {
 private:
     char ms_file[CLIB_LOG_SLEN_LONG];
     char ms_tformat[CLIB_LOG_SLEN_NORM];
@@ -149,7 +147,7 @@ public:
     /**
      * Destory clib_log class.
      */
-    ~clib_log( void );
+    ~clib_log(void);
 
 	/**
 	* 设置染色日志文件
@@ -278,7 +276,6 @@ public:
 
 }; // class clib_log.
 
-
 #endif
 
-#endif
+
