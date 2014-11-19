@@ -14,6 +14,7 @@ using namespace Helper;
 
 bool is_daemon = false;
 
+#define __EXEC_TIME 10 * 1000 // 10ms
 
 static const char* const INI_FILE = "../etc/server.ini";
 
@@ -78,6 +79,7 @@ main(int argc, char** argv)
 
 	while (1) {
 		sync_order(mysql,redis);
+		usleep(__EXEC_TIME);
 	}
 
 	return 0;

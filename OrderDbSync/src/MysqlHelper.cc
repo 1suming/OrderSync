@@ -68,8 +68,7 @@ CMysqlHelper::ExecuteQuery(const std::string& sql)
 
 	MYSQL_RES* res = mysql_store_result(&mysql_);
 
-	if ( (r = mysql_next_result(&mysql_)) == 0)
-	{
+	if ( (r = mysql_next_result(&mysql_)) == 0) {
 		MYSQL_RES* res2 = mysql_store_result(&mysql_);
 		mysql_free_result(res2);
 	}
@@ -84,13 +83,17 @@ CMysqlHelper::ExecuteQuery(const std::string& sql)
 int
 CMysqlHelper::ExecuteNonQuery(const std::string& sql)
 {
-	int res = mysql_query(&mysql_, sql.c_str());
+	int rows, res;
 
+	rows = res = 0;
+
+	res = mysql_query(&mysql_, sql.c_str());
 	if (res == 0) {
 		MYSQL_RES* result = mysql_store_result(&mysql_);
-		
 		if ( result != NULL) {
-			return mysql_affected_rows(&mysql_);
+			rows = mysql_affected_rows(&mysql_);
+			mysql_free_result(result);
+			return rows;
 		} else {
 			return 0;
 		}
