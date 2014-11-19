@@ -168,6 +168,7 @@ order_sync_client_t::run()
 		}
 	} // while
 
+	free(rbuff);
 	return 0;
 }
 
@@ -200,6 +201,8 @@ order_sync_client_t::get_ord_date(uint64_t id)
 		} else {
 			t = 0;
 		}
+
+		delete r;
 	} else {
 		log_error("mysql execute failed.");
 		return time(NULL);//-1;
