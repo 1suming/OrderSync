@@ -119,7 +119,7 @@ public:
 	set_payer(payer_t* p) { _payer.id = p->id; _payer.mid = p->mid; }
 	
 private:
-	virtual int InputNotify (void);
+	`virtual int InputNotify (void);
 	virtual int OutputNotify (void);
     virtual int HangupNotify (void);
     virtual void TimerNotify(void);

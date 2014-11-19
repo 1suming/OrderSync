@@ -43,7 +43,7 @@ void init_log (const char *app, const char *dir, int max_num, int max_size)
 
 void set_log_level(int l)
 {
-    if(l>=0)
+    if (l >= 0)
         __log_level__ = l > 4 ? l : 4;
 }
 

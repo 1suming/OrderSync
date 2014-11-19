@@ -264,35 +264,28 @@ TDecodeStatus CClientUnit::proc_pkg () // recv
 
 	curr_recv_len = ::recv (netfd, curr_recv_buf, MAX_WEB_RECV_LEN, 0);
 	g_pDebugLog->logMsg("*STEP: receiving HTTP request, length[%d]", curr_recv_len);
-	if(-1 == curr_recv_len)
-	{
-		if(errno != EAGAIN && errno != EINTR && errno != EINPROGRESS)
-		{
+	if(-1 == curr_recv_len) {
+		if (errno != EAGAIN && errno != EINTR && errno != EINPROGRESS) {
 			_decodeStatus = DECODE_FATAL_ERROR;
 			log_warning ("recv failed from fd[%d], msg[%s]", netfd, strerror(errno));
 			return _decodeStatus;
 		}
-		else
-		{
+		else {
 			return _decodeStatus;
 		}
 	}
 
-	if(0 == curr_recv_len)
-	{
+	if(0 == curr_recv_len) {
 		_decodeStatus = DECODE_DISCONNECT_BY_USER;
 		g_pDebugLog->logMsg("%s||Connect disconnect by client, uid:[%d]", __FUNCTION__, _uid);
 		return _decodeStatus;
 	}
 
-	if(curr_recv_len==23 && curr_recv_buf[0]=='<' && curr_recv_buf[1]=='p')		
-	{	
+	if(curr_recv_len==23 && curr_recv_buf[0]=='<' && curr_recv_buf[1]=='p') {	
 		_decoderunit->set_conn_type(CONN_OTHER);
 		std::string policy = "<policy-file-request/>";			
-		for(int i=0; i<23; ++i)			
-		{				
-			if(curr_recv_buf[i] != policy[i])				
-			{					
+		for(int i=0; i<23; ++i) {				
+			if(curr_recv_buf[i] != policy[i]) {					
 				_decodeStatus = DECODE_FATAL_ERROR;	
 				return _decodeStatus;
 			}
@@ -303,14 +296,9 @@ TDecodeStatus CClientUnit::proc_pkg () // recv
 		_decodeStatus = DECODE_FATAL_ERROR;					
 		return _decodeStatus;
 	}
-	g_pDebugLog->logMsg("AAAAAAAAAAAAA");
 	_r.append(curr_recv_buf, curr_recv_len);
-	g_pDebugLog->logMsg("BBBBBBBBBBBBB");
-	while(_r.data_len() > 0)
-	{
-		g_pDebugLog->logMsg("CCCCCCCCCCCC");
+	while(_r.data_len() > 0) {
 		int inputRet = HandleInput(_r.data(), _r.data_len()); /* 合法性检查 */
-		g_pDebugLog->logMsg("DDDDDDDDDDDDDD  [%d]",inputRet);
 		if(inputRet < 0) {
 			_decodeStatus = DECODE_FATAL_ERROR;
 			return _decodeStatus;
@@ -320,9 +308,7 @@ TDecodeStatus CClientUnit::proc_pkg () // recv
 		}
 		
 		int handleInputBufRet = HandleInputBuf(_r.data() , inputRet);   
-		g_pDebugLog->logMsg("eeeeeeeeeee  [%d]",handleInputBufRet);         
-		if( handleInputBufRet < 0 )           
-		{ 
+		if( handleInputBufRet < 0 ) { 
 			_decodeStatus = DECODE_FATAL_ERROR;                 
 			return _decodeStatus;            
 		}              
@@ -339,10 +325,8 @@ CClientUnit::HandleInput(const char* data,  int len) /* 数据包合法性检查
 	CEncryptDecrypt ed;
 	
 	headLen = sizeof(struct TPkgHeader);
-	g_pDebugLog->logMsg("ffffffffffff  [%d]",headLen);  
-	g_pDebugLog->logMsg("ggggggggg  [%d]",len);
-	if(len < headLen) {
-		g_pDebugLog->logMsg("hhhhhhh  [%d]",len);
+	if (len < headLen) {
+		g_pDebugLog->logMsg("len < headlen [%d]",len);
 		return 0;
 	}
 	
@@ -359,7 +343,7 @@ CClientUnit::HandleInput(const char* data,  int len) /* 数据包合法性检查
 		return -1;
 	}
 
-	if(len < pkglen) return 0; /* 接收到数据包头数据，但是包还没有接受完整 */
+	if (len < pkglen) return 0; /* 接收到数据包头数据，但是包还没有接受完整 */
 
 	return pkglen;
 }
@@ -367,10 +351,8 @@ CClientUnit::HandleInput(const char* data,  int len) /* 数据包合法性检查
 
 bool CClientUnit::CheckCmd(int cmd)
 {
-	for(int i=0; i<(int)_helperpool->m_cmdlist.size(); i++)
-	{
-		if(cmd == _helperpool->m_cmdlist[i])
-			return true;
+	for(int i=0; i<(int)_helperpool->m_cmdlist.size(); i++) {
+		if(cmd == _helperpool->m_cmdlist[i]) return true;
 	}
 	return false;
 }
@@ -393,7 +375,7 @@ CClientUnit::HandleInputBuf(const char *pData, int len)
 
 	cmd = reqPacket.GetCmdType();
 
-	g_pErrorLog->logMsg("%s||HandleInputBuf cmd:[0x%x]",__FUNCTION__, cmd);
+	g_pDebugLog->logMsg("%s||HandleInputBuf cmd:[0x%x]",__FUNCTION__, cmd);
 	
 	/* 协议命令处理 */
 	switch (cmd) {
@@ -402,7 +384,7 @@ CClientUnit::HandleInputBuf(const char *pData, int len)
 			break;
 		default:
 			ret = -1; // 命令字不合法
-			g_pErrorLog->logMsg("cmd %d is invailed.", cmd);
+			log_error("cmd %d is invailed.", cmd);
 			break;
 	}
 
