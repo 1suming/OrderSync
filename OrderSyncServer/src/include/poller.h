@@ -9,8 +9,7 @@
 #define EPOLL_DATA_SLOT(x)	((x)->data.u64 & 0xFFFFFFFF)
 #define EPOLL_DATA_SEQ(x)	((x)->data.u64 >> 32)
 
-enum TPollerState
-{
+enum TPollerState {
     POLLER_FAIL     = -1,
     POLLER_SUCC,
     POLLER_COMPLETE
@@ -25,8 +24,7 @@ struct CEpollSlot {
 	struct CEpollSlot *freeList;
 };
 
-class CPollerObject 
-{
+class CPollerObject {
 public:
 	CPollerObject (CPollerUnit *thread=NULL, int fd=0);
 	virtual ~CPollerObject ();
@@ -35,23 +33,10 @@ public:
 	virtual int OutputNotify (void);
 	virtual int HangupNotify (void);
 	
-	void EnableInput(void) 
-	{
-		newEvents |= EPOLLIN;
-	}
-	void EnableOutput(void) 
-	{
-		newEvents |= EPOLLOUT;
-	}
-	void DisableInput(void) 
-	{
-		newEvents &= ~EPOLLIN;
-	}
-	void DisableOutput(void) 
-	{
-        log_debug ("netfd[%d] DisableOutput!!!", netfd);
-		newEvents &= ~EPOLLOUT;
-	}
+	void EnableInput(void) { newEvents |= EPOLLIN; }
+	void EnableOutput(void) { newEvents |= EPOLLOUT; }
+	void DisableInput(void) { newEvents &= ~EPOLLIN; }
+	void DisableOutput(void) { log_debug ("netfd[%d] DisableOutput!!!", netfd); newEvents &= ~EPOLLOUT; }
 
 	void EnableInput(bool i) 
 	{
@@ -60,6 +45,7 @@ public:
 		else
 			newEvents &= ~EPOLLIN;
 	}
+
 	void EnableOutput(bool o) 
 	{
 		if(o)
@@ -83,8 +69,7 @@ protected:
 	struct CEpollSlot *epslot;
 };
 
-class CPollerUnit 
-{
+class CPollerUnit {
 public:
 	friend class CPollerObject;
 	CPollerUnit(int mp);
@@ -103,14 +88,14 @@ private:
 	int GetSlotId (CEpollSlot *p) {return ((char*)p - (char*)pollerTable) / sizeof (CEpollSlot);}
 
 	void FreeEpollSlot (CEpollSlot *p);
-	struct CEpollSlot *AllocEpollSlot ();
+	struct CEpollSlot 	*AllocEpollSlot ();
 
-	struct epoll_event *ep_events;
-	int epfd;
-	int maxPollers;
-	int usedPollers;
-	struct CEpollSlot *freeSlotList;	
-	struct CEpollSlot *pollerTable;
+	struct epoll_event 	*ep_events;
+	int 				epfd;
+	int 				maxPollers;
+	int 				usedPollers;
+	struct CEpollSlot 	*freeSlotList;	
+	struct CEpollSlot 	*pollerTable;
 
 	int nrEvents;
 };

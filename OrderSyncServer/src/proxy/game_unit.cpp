@@ -136,6 +136,8 @@ int CGameUnit::send_to_cgi(void)
 	int ret = 0;
 	int reConnectCount = 0;
 	log_debug("_w data size:[%d]", _w.data_len());
+	(void)reConnectCount;
+
 logic:		
 	if (_w.data_len() != 0)
 	{
@@ -358,6 +360,7 @@ int CGameUnit::process_pkg(void)
 			//reset_helper()会重置ip port 一定要在后面赋值
 			addr = _ip;
 			port = _port;
+			(void)uid;
 			break;
 		}		
 	}
