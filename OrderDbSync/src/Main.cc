@@ -33,17 +33,17 @@ static
 int Init();
 
 static
-void Show_Conf();
+void __show_conf();
 
 static 
-void CDWorkDir(const char* path);
+void __work_dir(const char* path);
 
 int
 main(int argc, char** argv)
 {
 	char LogName[100];
 	
-	CDWorkDir(argv[0]);
+	__work_dir(argv[0]);
 	
 #ifdef _DAEMON_
 	if (daemon(1, 0) == 0) {
@@ -57,7 +57,7 @@ main(int argc, char** argv)
 	log_info("server running.\n");
 
 	Init();
-	Show_Conf();
+	__show_conf();
 
 	CMysqlHelper* mysql = new CMysqlHelper(mysql_conf.host, mysql_conf.port, mysql_conf.user, mysql_conf.passwd);
 	mysql->Connect();
@@ -108,7 +108,7 @@ Init()
 }
 
 void
-Show_Conf()
+__show_conf()
 {
 	printf("-------------------------------\n");
 	printf("mysql->host: %s\n", mysql_conf.host);
@@ -137,15 +137,13 @@ Show_Conf()
 	printf("-------------------------------\n");
 }
 
-void CDWorkDir(const char * path)
+void 
+__work_dir(const char * path)
 {
-	char* rpath = realpath(path, NULL);
-
-	char* p = dirname(rpath);
-
-	int i = chdir(p);
-
-	(void)i;
-
+	char *rpath, *dir;
+	
+	rpath = realpath(path, NULL);
+	dir = dirname(rpath);
+	chdir(dir);
 	free(rpath);
 }

@@ -60,7 +60,7 @@ private:
     {
         unsigned int i = 10;
         size = (size>>10);
-        for(; size; i++, size = (size>>1));
+        for(; size; i++, size = (size>>1)); 
         return 1 << (i<10 ? 10 : i);
     }
     unsigned int fit_extend_set(unsigned size);

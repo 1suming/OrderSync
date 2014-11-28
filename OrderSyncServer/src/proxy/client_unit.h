@@ -53,7 +53,7 @@ class CClientUnit : public CPollerObject,
 					private CTimerObject, 
 					private noncopyable {
 public:
-	CClientUnit (CDecoderUnit*, int, unsigned long);
+	CClientUnit (CDecoderUnit*, int);
 	virtual ~CClientUnit ();
 
     int Attach (void);
@@ -105,19 +105,6 @@ public:
 	int HandleInput(const char* data,  int len);
 	int HandleInputBuf(const char* data, int len);
 	bool CheckCmd(int cmd);
-
-	unsigned long 
-	get_flow() { return _flow; }
-	
-	void
-	set_flow(unsigned long flow) { _flow = flow; }
-	
-	payer_t
-	get_payer() { return _payer; }
-	
-	void
-	set_payer(payer_t* p) { _payer.id = p->id; _payer.mid = p->mid; }
-	
 private:
 	virtual int InputNotify (void);
 	virtual int OutputNotify (void);
@@ -135,14 +122,11 @@ private:
 	void SendIPSetPacket(CGameUnit* pGameUnit, NETInputPacket &reqPacket, int cmd);	
 	int ProcessOpenDebug(NETInputPacket *pPacket);
 
-	int client_cmd_req_handler(NETInputPacket* pack);
 	int cmd_login_handler(int id);
 	int cmd_data_handler(NETInputPacket* pack);
 
 	int __data_flow(const string& data); /* 处理数据流 */
 
-private:
-	CHelperUnit* _get_job_worker();
 public:
 	short           _api;
 	short           _send_error_times;
@@ -154,8 +138,6 @@ private:
 	int             _login_flag;
 	CRawCache       _r;
 	CRawCache       _w;
-	unsigned long 	_flow; // 数字标示
-	payer_t			_payer; // 支付用户信息
 };
 HTTP_SVR_NS_END
 #endif

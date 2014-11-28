@@ -138,7 +138,7 @@ CDecoderUnit::~CDecoderUnit (void)
 
 int CDecoderUnit::listener_input (void) // called by CListener::proc_request 
 {
-	NEW(CClientUnit(this, _fd, __FLOW__()), _webUnit);
+	NEW(CClientUnit(this, _fd), _webUnit);
 	if (NULL == _webUnit) {
 		log_error ("create CClient object failed, errno[%d], %m", errno);
 		return -1;

@@ -92,7 +92,7 @@ CMysqlHelper::ExecuteNonQuery(const std::string& sql)
 	res = mysql_query(&mysql_, sql.c_str());
 	if (res == 0) {
 		MYSQL_RES* result = mysql_store_result(&mysql_);
-		if ( result != NULL) {
+		if (result != NULL) {
 			rows = mysql_affected_rows(&mysql_);
 			mysql_free_result(result);
 			return rows;

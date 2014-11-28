@@ -73,7 +73,7 @@ int GetRand()
 }
 
 
-CClientUnit::CClientUnit(CDecoderUnit* decoderunit, int fd, unsigned long flow): 
+CClientUnit::CClientUnit(CDecoderUnit* decoderunit, int fd): 
 	CPollerObject (decoderunit->pollerunit(), fd),
 	_api(0),
 	_send_error_times(0),
@@ -83,8 +83,7 @@ CClientUnit::CClientUnit(CDecoderUnit* decoderunit, int fd, unsigned long flow):
 	_uid(0),
 	_login_flag(0),
 	_r(*_webMp),
-	_w(*_webMp),
-	_flow(flow)
+	_w(*_webMp)
 {
 }
 
@@ -149,20 +148,17 @@ int CClientUnit::recv (void) // InputNotify
 int CClientUnit::send (void)
 {
     log_error("CClientUnit response bufLen:[%d] netfd[%d]", _w.data_len(), netfd);	
-	if (_w.data_len() != 0)
-	{		
+	if (_w.data_len() != 0) {		
 		log_error("send packet before, length[%d]", _w.data_len());
 		int ret = ::send (netfd, _w.data(), _w.data_len(), 0);
 		log_error("sent packet length[%d] netfd[%d]", ret, netfd);
 		if(-1 == ret)
 		{
-			if(errno == EINTR || errno == EAGAIN || errno == EINPROGRESS)
-			{
+			if(errno == EINTR || errno == EAGAIN || errno == EINPROGRESS) {
 				log_error("errno:[%d]", errno);
 				//¼ÓÈësend´íÎó´ÎÊýÏÞÖÆ
 				_send_error_times++;
-				if(_send_error_times >= 50)
-				{
+				if(_send_error_times >= 50) {
 					g_pErrorLog->logMsg("%s|CClientUnit::send, send error more,%d|%d", __FUNCTION__, _uid, _api);
 					DisableInput ();
 					DisableOutput ();
@@ -188,8 +184,7 @@ int CClientUnit::send (void)
 			return -1;
 		}
 
-		if(ret == (int)_w.data_len())
-		{
+		if(ret == (int)_w.data_len()) {
 			log_debug("send complete");
 			DisableOutput();
 			ApplyEvents ();
@@ -197,9 +192,7 @@ int CClientUnit::send (void)
 			_stage = CONN_SEND_DONE;
 			_send_error_times = 0;
 			return ret;
-		}
-		else if (ret < (int)_w.data_len())
-		{
+		} else if (ret < (int)_w.data_len()) {
 			log_debug("had sent part of data");
 			EnableOutput ();
 			ApplyEvents ();
@@ -649,85 +642,6 @@ int CClientUnit::ProcessOpenDebug(NETInputPacket *pPacket)
 	TGlobal::_debugLogSwitch = pPacket->ReadInt();
 	log_error("%s|_debugLogSwitch:[%d]", __FUNCTION__, TGlobal::_debugLogSwitch);
 	return 0;
-}
-
-int
-CClientUnit::client_cmd_req_handler(NETInputPacket* pack)
-{
-	int 			ret = 0, ReqType = 0;
-	string 			ReqMsg, ReqJson;
-	NETOutputPacket out;
-	NETInputPacket 	*in;
-	Reader			reader;
-	Value			value;
-	FastWriter		writer;
-	CHelperUnit*	h;
-	CEncryptDecrypt	ed;	
-
-	in = pack;
-	ed.DecryptBuffer(in); /* 解码 */
-
-	ReqType = in->ReadInt();
-	ReqMsg = in->ReadString(); /* json format */
-
-	/* parse json and add flow feild */
-	if (reader.parse(ReqMsg, value)) {
-		value["flow"] = (UInt64)this->_flow;
-		value["time"] = (unsigned int)time(NULL);
-
-		ReqJson = writer.write(value);
-
-		out.Begin(INTER_CMD_REQ);
-		out.WriteInt(ReqType);
-		out.WriteString(ReqJson);
-		out.End();
-
-		ed.EncryptBuffer(&out); /* 编码 */
-
-		/* 获取后台helper，并发送 */
-		h = this->_get_job_worker();
-
-		if (h) {
-			h->append_pkg(out.packet_buf(), out.packet_size());
-			ret = h->send_to_logic(_decoderunit->get_helper_timer());
-		} else {
-			g_pErrorLog->logMsg("JobWorker Not Found.");
-			return -1;
-		}
-	} else {
-		g_pErrorLog->logMsg("ReqMsg Parsed Failed.");
-		ret = -1;
-	}
-
-	return ret;
-}
-
-CHelperUnit*
-CClientUnit::_get_job_worker()
-{
-	map<int, vector<int> >::iterator 	l_iter;
-	map<int, CHelperUnit*>::iterator 	h_iter;
-	int									job_id;
-	CHelperUnit							*h = NULL;
-	
-	l_iter = _helperpool->m_levelmap.find(JobWorkerType);
-	if (l_iter != _helperpool->m_levelmap.end()) {
-		vector<int>& workers = l_iter->second;
-
-		if (workers.size() > 0) {
-			job_id = workers[0]; /* 暂时只有一个worker这里直接赋值 */
-
-			h_iter = _helperpool->m_helpermap.find(job_id);
-
-			if (h_iter != _helperpool->m_helpermap.end()) {
-				h = h_iter->second;
-			} else {
-				g_pErrorLog->logMsg("helper null.");
-			}
-		}
-	}
-
-	return h;
 }
 
 int

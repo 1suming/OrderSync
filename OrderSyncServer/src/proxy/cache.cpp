@@ -47,8 +47,7 @@ void CRawCache::append(const char* data, unsigned data_len)
     //	data_len < _block_size - _data_head - _data_len
     //	append directly
     //
-    if (data_len + _data_head + _data_len <= _block_size)
-    {
+    if (data_len + _data_head + _data_len <= _block_size) {
         memcpy(_mem + _data_head + _data_len, data, data_len);
         _data_len += data_len;
     }
@@ -56,8 +55,7 @@ void CRawCache::append(const char* data, unsigned data_len)
     //	_block_size-_data_len <= data_len
     //	reallocate new block. memmove, recycle
     //
-    else if (data_len + _data_len > _block_size)
-    {
+    else if (data_len + _data_len > _block_size) {
         unsigned new_block_size = 0;
         char* mem = (char*) _mp.allocate(data_len+_data_len, new_block_size);
         //assert(mem);
