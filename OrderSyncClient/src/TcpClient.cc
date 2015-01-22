@@ -68,7 +68,7 @@ CTcpClient::Recv(char* buffer, int size)
 {
 	int rlen;
 
-	if(!IsConnected) return 0;
+	if (!IsConnected) return 0;
 	
     rlen = recv(socketfd_, buffer, size, 0);
 
@@ -187,4 +187,22 @@ CTcpClient::check()
 	}
 
 	return rlen;
+}
+
+int
+CTcpClient::SetSendBuff(int buffsz)
+{
+	int sz;
+
+	sz = buffsz;
+	return setsockopt(socketfd_, SOL_SOCKET, SO_SNDBUF, &sz, sizeof sz);
+}
+
+int
+CTcpClient::SetRecvBuff(int buffsz)
+{
+	int sz;
+
+	sz = buffsz;
+	return setsockopt(socketfd_, SOL_SOCKET, SO_RCVBUF, &sz, sizeof sz);
 }

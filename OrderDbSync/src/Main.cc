@@ -59,7 +59,10 @@ main(int argc, char** argv)
 	Init();
 	__show_conf();
 
-	CMysqlHelper* mysql = new CMysqlHelper(mysql_conf.host, mysql_conf.port, mysql_conf.user, mysql_conf.passwd);
+	CMysqlHelper* mysql = new CMysqlHelper(mysql_conf.host, 
+										   mysql_conf.port, 
+										   mysql_conf.user, 
+		                                   mysql_conf.passwd);
 	mysql->Connect();
 	mysql->UseDB(mysql_conf.db);
 	if (mysql->IsConnected()) {

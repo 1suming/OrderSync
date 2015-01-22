@@ -203,18 +203,16 @@ int CNet::tcp_bind(const char *addr, uint16_t port, int backlog)
 
 	setsockopt (netfd, SOL_SOCKET, SO_REUSEADDR, &reuse_addr, sizeof (reuse_addr));
     setsockopt (netfd, SOL_TCP, TCP_NODELAY, &reuse_addr, sizeof (reuse_addr));
-    reuse_addr = 60;
+    reuse_addr = 60; // 这里 reuse_addr 大于1 的时候作为time_out的时间 单位为s
     setsockopt (netfd, SOL_TCP, TCP_DEFER_ACCEPT, &reuse_addr, sizeof (reuse_addr));
 	
-    if(::bind(netfd, (struct sockaddr *)&inaddr, sizeof(struct sockaddr)) == -1)
-	{
+    if(::bind(netfd, (struct sockaddr *)&inaddr, sizeof(struct sockaddr)) == -1) {
 		log_boot ("bind tcp %s:%u failed, %m", addr, port);
 		close (netfd);
 		return -1;
 	}
 
-	if(::listen(netfd, backlog) == -1)
-	{
+	if(::listen(netfd, backlog) == -1) {
 		log_boot ("listen tcp %s:%u failed, %m", addr, port);
 		close (netfd);
 		return -1;
@@ -278,7 +276,7 @@ int CNet::unix_bind(const char *path, int backlog, int flag)
 	int sock_opt = 0;    
 	socklen_t addrlen = CNet::init_unix_addr(&unaddr, path);
 	
-    	if ((netfd = socket(PF_UNIX, SOCK_STREAM, 0)) == -1)  {
+   	if ((netfd = socket(PF_UNIX, SOCK_STREAM, 0)) == -1)  {
 		log_boot ("%s", "make unix socket error, %m");
 		return -1;
 	}

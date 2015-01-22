@@ -11,6 +11,9 @@
 #include <inttypes.h>
 #include <sys/epoll.h>
 #include <errno.h>
+//添加到*.o文件中的表示信息 信息内容为字符串内容
+#ident "\\n$@           ID : chenbo.o v1.3 (25/08/07)@$\\n" 
+
 
 using namespace Json;
 
@@ -19,6 +22,8 @@ extern conf_t g_conf;
 #define __FREE_TIME		1000 * 1000 // 1s 无数据时休眠时间
 #define __EXEC_TIME 	10 * 1000 // 10ms  处理完一条记录后睡眠的时间
 #define __CMD_DATA_SYNC 0x0002
+#define __ERROR_TIMES 	200
+#define __ERROR_TIME 	25 * 1000
 
 #ifndef ALLOC
 #define ALLOC(P, SZ) P = (__typeof__(P))malloc(SZ); if (P) memset(P, 0, SZ)
@@ -44,6 +49,9 @@ order_sync_client_t::run()
 	struct epoll_event 	*events;
 	int					ev_nums;
 	char				*rbuff;
+	long 				mtime;
+	int 				r_errs;
+	string 				table;
 
 	ALLOC(rbuff, 1024);
 
@@ -59,6 +67,8 @@ order_sync_client_t::run()
 		if (ev_nums <= 0) continue;
 
 		events = _p->get_events();
+
+		r_errs = 0;
 
 		if (events[0].events & READABLE) {
 			if (_c->check() == 0) {
@@ -91,8 +101,20 @@ order_sync_client_t::run()
 
 					type = value["type"].asInt();
 					id = value["id"].asUInt64();
+					table = value["table"].asString();
 					if (type == 1) { /* update order 需要获取创建时间，同步端需要依赖这个字段 */
-						value["mtime"] = (Int64)get_ord_date(id); // 这里返回错误的话，是否需要处理
+#ifdef __PARTITION__
+#warning("__PARTITION__ defined")
+						mtime = get_ord_date(table, id);
+#else
+#warning("__PARTITION__ not defined")
+						mtime = get_ord_date(id);
+#endif
+						if (mtime <= 0) { // 获取订单的时间错误处理
+							log_error("ORDER: %s", json.c_str());
+							continue;
+						}
+						value["mtime"] = (Int64)mtime; 
 						json = writer.write(value); 
 					} 
 
@@ -119,8 +141,8 @@ order_sync_client_t::run()
 								goto send;
 							} else {
 								log_error("connected server failed");
-								log_error("order: %s", json.c_str());
-								break;
+								sleep(5);/*  重连失败后等待5s*/
+								goto send;
 							}
 						}
 
@@ -133,6 +155,16 @@ order_sync_client_t::run()
 							goto send;
 						} else if (rr == -1) {
 							if (errno == EAGAIN || errno == EINTR || errno == EINPROGRESS) {
+								if (r_errs <= __ERROR_TIMES) {
+									usleep(__ERROR_TIME); 
+									r_errs++; /* 防止接收不到包，进入死循环*/
+								} else {
+									r_errs = 0;
+									_c->Disconneced();
+									_c->Close();
+									goto send;
+								}
+
 								goto RR;
 							} else {
 								_c->Disconneced();
@@ -204,11 +236,49 @@ order_sync_client_t::get_ord_date(uint64_t id)
 
 		delete r;
 	} else {
-		log_error("mysql execute failed.");
-		return time(NULL);//-1;
+		log_error("mysql execute failed: %lu", id);
+		return -1;
 	}
 
-	return time(NULL); //测试是暂时返回
+	return t;
 }
 
+long
+order_sync_client_t::get_ord_date(string& table, uint64_t id)
+{
+	string 			sql;
+	size_t			pos;
+	char 			temp[64];
+	CMysqlResult 	*r;
+	long 			t;
+
+	sql = "select pstarttime from " + table + " where pid = :id";
+	pos = sql.find(":id");
+	if (pos != string::npos) {
+		snprintf(temp, 64, "%"PRIu64, id);
+		sql.replace(pos, strlen(":id"), temp);
+		log_debug("sql: %s", sql.c_str());
+	}
+
+	if (!_m->IsConnected()) {
+		_m->Connect();
+		_m->UseDB(g_conf.mysql_db);
+	}
+	r = _m->ExecuteQuery(sql);
+
+	if (r) {
+		if (r->HasNext()) {
+			t = r->GetLong(0);
+		} else {
+			t = 0;
+		}
+
+		delete r;
+	} else {
+		log_error("mysql execute failed: %lu", id);
+		return -1;
+	}
+
+	return t;
+}
 

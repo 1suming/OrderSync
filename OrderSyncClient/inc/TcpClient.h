@@ -41,6 +41,10 @@ public:
 
 	int SetRecvTimeout(unsigned int sec);
 
+	int SetSendBuff(int buffsz);
+
+	int SetRecvBuff(int buffsz);
+
 	int SetNonblock();
 
 	int Reconnect();

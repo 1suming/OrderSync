@@ -18,7 +18,7 @@ static string
 sync_get_table_name(const long& mtime)
 {
 	struct tm 	now;
-	char		date[strlen(table_conf.new_name)];
+	char		date[128];
 	time_t		t;
 
 	log_debug("mtime: %lu", mtime);
@@ -26,12 +26,12 @@ sync_get_table_name(const long& mtime)
 	if (mtime == 0) { // insert
 		t = time(NULL);
 		localtime_r(&t, &now); 
-		snprintf(date, 128, table_conf.new_name, 
-							now.tm_year + 1900, now.tm_mon ? now.tm_mon + 1 : 12);
+		snprintf(date, sizeof date, table_conf.new_name, 
+							now.tm_year + 1900, now.tm_mon + 1);
 	} else { // update
 		localtime_r((const time_t *)&mtime, &now); 
-		snprintf(date, 128, table_conf.new_name, 
-							now.tm_year + 1900, now.tm_mon ? now.tm_mon + 1 : 12);
+		snprintf(date, sizeof date, table_conf.new_name, 
+							now.tm_year + 1900, now.tm_mon + 1;
 	}
 	
 	return string(date);
@@ -55,7 +55,7 @@ __repair_sql(string& sql, uint64_t pid)
 	if (pos != string::npos) {
 		pos2 = sql.find(dm, pos + 1);
 		if (pos2 != string::npos) {
-			snprintf(temp, 64, ",%lu)", pid);
+			snprintf(temp, sizeof temp, ",%lu)", pid);
 			sql.replace(pos2, strlen(dm), temp);
 		} else {
 			return -1;
@@ -116,14 +116,20 @@ sync_order(CMysqlHelper* mysql, CRedisHelper* redis)
 
 	pos = sql.find(table_conf.old_name);
 	if (pos != string::npos) {
-		sql.replace(pos, strlen(table_conf.old_name), table);
+#ifdef __PARTITION__
+#warning("__PARTITION__ defined")
+		sql.replace(pos, 19, table); // 分表处理方式 paycenter_order_0001 固定长度为20
+#else 
+#warning("__PARTITION__ not defined")
+		sql.replace(pos, strlen(table_conf.old_name), table); //未分表处理方式
+#endif
 	}
-
+#ifndef __PARTITION__
 	if (type == 0) { // insert
 		id = json["id"].asUInt64();
 		__repair_sql(sql, id); // add pid 
 	}
-
+#endif
 	log_debug("SQL: %s", sql.c_str());
 
 	if (!mysql->IsConnected()) {

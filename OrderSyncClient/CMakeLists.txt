@@ -28,6 +28,7 @@ include_directories(. inc /home/AustinChen/tools/jsoncpp-0.6.0/include /home/Aus
 link_directories(/home/AustinChen/tools/jsoncpp-0.6.0/libs/linux-gcc-4.1.2 /usr/local/mysql/lib /home/AustinChen/lib)
 
 add_executable(order_sync_client ${SRC})
+add_definitions(-D__PARTITION__)
 
 target_link_libraries(order_sync_client mysqlclient z rt libhiredis.a libjson.a)
 	

@@ -2,6 +2,9 @@
 #define __ORDER_SYNC_CLIENT_H_
 
 #include <stdint.h>
+#include <string>
+
+using std::string;
 
 class fetcher_t;
 class CTcpClient;
@@ -26,6 +29,7 @@ public:
 	int run();
 public:
 	long get_ord_date(uint64_t id); /* 返回订单创建时间 */
+	long get_ord_date(string& table, uint64_t id); /* 新版分表系统返回 */
 private:
 	fetcher_t 		*_f;
 	tcp_client_t 	*_c;

@@ -668,9 +668,10 @@ CClientUnit::cmd_data_handler(NETInputPacket* pack)
 	event_id = pack->ReadULong();
 	data = pack->ReadString();
 
-	cmd_login_handler(client_id);
+	log_debug("client_id: %d event_id: %"PRIu64" data: %s", 
+		client_id, event_id, data.c_str());
 
-	log_debug("client_id: %d event_id: %"PRIu64" data: %s", client_id, event_id, data.c_str());
+	cmd_login_handler(client_id);
 
 	__data_flow(data);
 	
@@ -681,9 +682,7 @@ CClientUnit::cmd_data_handler(NETInputPacket* pack)
 
 	this->add_rsp_buf(out.packet_buf(), out.packet_size());
 	ret = this->send();
-
 	log_debug("-------- CClientUnit::cmd_data_handler end --------");
-
 	return ret;
 }
 
