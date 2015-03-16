@@ -108,7 +108,7 @@ CTcpClient::Connect()
     remote.sin_family = AF_INET;
     remote.sin_port = htons(port_);
 
-	if(this->socketfd_ > 0) {
+	if (this->socketfd_ > 0) {
 		result = connect(socketfd_, (struct sockaddr*)&remote, sizeof(struct sockaddr));
 
 		IsConnected = result == 0 ? true : false;
